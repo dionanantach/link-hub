@@ -1,11 +1,11 @@
 /**
- * Link Hub — backend Google Apps Script.
+ * Linkcah — backend Google Apps Script.
  * Pasang dari Google Sheet: Ekstensi → Apps Script, tempel seluruh isi file ini.
  * Lalu Deploy → Deployment baru → Aplikasi web (Jalankan sebagai: Saya, Akses: Siapa saja).
  */
 
 // GANTI dengan kode rahasia buatanmu sendiri (bebas, minimal 12 karakter).
-// Kode ini juga yang diisi di Pengaturan aplikasi Link Hub.
+// Kode ini juga yang diisi di Pengaturan aplikasi Linkcah.
 const TOKEN = "ganti-dengan-kode-rahasiamu";
 
 const SHEET_NAME = "Links";

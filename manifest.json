@@ -1,7 +1,7 @@
 {
-  "name": "Link Hub",
-  "short_name": "Link Hub",
-  "description": "Shortcut cepat ke link kerjaan",
+  "name": "Linkcah",
+  "short_name": "Linkcah",
+  "description": "Jalan pintas ke semua link kerja",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

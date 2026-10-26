@@ -1,12 +1,12 @@
-# Link Hub
+# Linkcah
 
-**Satu halaman untuk semua link kerja, rapi di laptop, dan bisa di-install di HP seperti aplikasi.**
+**Jalan pintas ke semua link kerja.** Satu halaman berisi semua link, rapi di laptop, dan bisa di-install di HP seperti aplikasi.
 
-🔗 **Coba demo:** `https://dionanantach.github.io/link-hub/?demo` (pakai data contoh; perubahan tidak disimpan)
+🔗 **Coba demo:** `https://dionanantach.github.io/linkcah/?demo` (pakai data contoh; perubahan tidak disimpan)
 
-![Tampilan Link Hub di laptop](docs/laptop.png)
+![Tampilan Linkcah di laptop](docs/laptop.png)
 
-> **In English:** Link Hub is a personal, card-based link launcher. It is a static Progressive Web App on GitHub Pages, with Google Sheets + Apps Script as a token-protected backend, so the data stays in my own Google account and syncs across laptop and phone. I designed and directed it, then built it with AI assistance (Claude for design and code, an agent in Antigravity for deployment).
+> **In English:** Linkcah is a personal, card-based link launcher. It is a static Progressive Web App on GitHub Pages, with Google Sheets + Apps Script as a token-protected backend, so the data stays in my own Google account and syncs across laptop and phone. I designed and directed it, then built it with AI assistance (Claude for design and code, an agent in Antigravity for deployment).
 
 ---
 
@@ -30,7 +30,7 @@ Setiap hari saya membuka link yang sama berulang kali: folder Drive, spreadsheet
 | **Bisa di-install di HP** | Progressive Web App, tetap bisa dibuka saat offline |
 | **Personalisasi** | Warna card manual, tema terang/gelap |
 
-![Tampilan Link Hub di HP](docs/hp.png)
+![Tampilan Linkcah di HP](docs/hp.png)
 
 ## Arsitektur
 

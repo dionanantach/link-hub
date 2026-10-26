@@ -1,6 +1,6 @@
-# Setup Link Hub
+# Setup Linkcah
 
-Panduan untuk menjalankan Link Hub dengan data sendiri.
+Panduan untuk menjalankan Linkcah dengan data sendiri.
 
 ## Mode yang tersedia
 
@@ -12,9 +12,9 @@ Panduan untuk menjalankan Link Hub dengan data sendiri.
 
 ## 1. Hosting frontend (GitHub Pages)
 
-1. Buat repo publik, misalnya `link-hub`, lalu upload semua file di repo ini.
+1. Buat repo publik, misalnya `linkcah`, lalu upload semua file di repo ini.
 2. **Settings → Pages → Deploy from a branch → `main` / root → Save.**
-3. Setelah 1–2 menit, aplikasi bisa dibuka di `https://dionanantach.github.io/link-hub/`.
+3. Setelah 1–2 menit, aplikasi bisa dibuka di `https://dionanantach.github.io/linkcah/`.
 
 ## 2. Backend Google Sheet + Apps Script
 
@@ -31,7 +31,7 @@ Kolom yang dibutuhkan (`id, nama, url, kategori, catatan, ikon, warna, favorit, 
 
 Pilih salah satu cara:
 
-- **Link setup:** buka `https://dionanantach.github.io/link-hub/#api=<URL_EXEC yang di-encode>&token=<TOKEN>` sekali di tiap perangkat. **Link ini rahasia, karena berisi token.**
+- **Link setup:** buka `https://dionanantach.github.io/linkcah/#api=<URL_EXEC yang di-encode>&token=<TOKEN>` sekali di tiap perangkat. **Link ini rahasia, karena berisi token.**
 - **Manual:** buka aplikasi → Pengaturan → tempel URL `/exec` dan token.
 
 Supaya URL tidak perlu ditempel di tiap perangkat, isi `DEFAULT_API_URL` di `index.html` dengan URL `/exec`. Token tetap jangan ditulis di file itu.

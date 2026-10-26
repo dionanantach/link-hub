@@ -407,27 +407,43 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
    TOKEN jangan ditulis di sini (repo GitHub-nya publik) — isi lewat Pengaturan di tiap perangkat. */
 const DEFAULT_API_URL = "https://script.google.com/macros/s/AKfycbz0BiIWhdZri6KaAmMk2BrHeIs9BFSnvK0-QWFQQ0MVvJkxYZXXWLca7jFYmIDiu2ZG4A/exec";
 
+// Data contoh: dipakai di mode lokal pertama kali dan di mode demo (?demo).
+// Kolom: nama, url, kategori, catatan, favorit, warna manual (kosong = otomatis)
 const SAMPLE = [
-  ["Canva","https://www.canva.com","Desain","Desain cepat"],
-  ["Figma","https://www.figma.com","Desain","UI & mockup"],
-  ["Remove.bg","https://www.remove.bg","Desain","Hapus background"],
-  ["Google Drive","https://drive.google.com","Kerja","File kerja"],
-  ["Google Sheets","https://docs.google.com/spreadsheets/","Kerja","Spreadsheet"],
-  ["Gmail","https://mail.google.com","Kerja","Email"],
-  ["Web BPS","https://www.bps.go.id","Data","Data & publikasi"],
-  ["GitHub","https://github.com","Dev","Repo proyek"],
-  ["Apps Script","https://script.google.com","Dev","Script Google"],
-  ["Claude","https://claude.ai","AI","Asisten"],
-].map(([nama,url,kategori,catatan], i) => ({id:"s"+i, nama, url, kategori, catatan, ikon:""}));
+  ["Google Drive","https://drive.google.com","Kerja","File kerja", true, ""],
+  ["Jadwal Tim","https://sheets.google.com","Kerja","Spreadsheet jadwal", false, ""],
+  ["Notulen Rapat","https://docs.google.com","Kerja","Dokumen bersama", false, ""],
+  ["Form Absensi","https://forms.google.com","Kerja","Google Form", false, ""],
+  ["Gmail","https://mail.google.com","Kerja","Email", false, ""],
+  ["Kalender","https://calendar.google.com","Kerja","Jadwal & rapat", false, ""],
+  ["Canva","https://www.canva.com","Desain","Poster & presentasi", true, "#06b6d4"],
+  ["Figma","https://www.figma.com","Desain","UI & mockup", false, ""],
+  ["Unsplash","https://unsplash.com","Desain","Foto gratis", false, ""],
+  ["Remove.bg","https://www.remove.bg","Desain","Hapus background", false, ""],
+  ["Data BPS","https://www.bps.go.id","Riset & Data","Statistik resmi", false, ""],
+  ["Google Scholar","https://scholar.google.com","Riset & Data","Jurnal & paper", false, ""],
+  ["Kaggle","https://www.kaggle.com","Riset & Data","Dataset & latihan", false, ""],
+  ["Claude","https://claude.ai","AI","Asisten AI", true, ""],
+  ["GitHub","https://github.com","AI","Repo proyek", false, "#64748b"],
+].map(([nama,url,kategori,catatan,favorit,warna], i) => ({id:"s"+i, nama, url, kategori, catatan, ikon:"", favorit, warna, urutan:null}));
+
+/* Mode demo: buka dengan ?demo di akhir URL. Pakai data contoh, semua perubahan hanya di memori
+   (hilang saat halaman dimuat ulang) dan tidak menyentuh data asli maupun Google Sheet. */
+const DEMO = new URLSearchParams(location.search).has("demo");
 
 // Warna bidang card, dipakai bergiliran mengikuti urutan link (sengaja tanpa ungu/indigo).
 const HUES = ["#3b82f6","#f97316","#10b981","#f43f5e","#eab308","#06b6d4","#ec4899","#84cc16","#14b8a6","#64748b"];
 const PALETTE = ["#2563eb","#e5484d","#16a34a","#d97706","#7c3aed","#0891b2","#db2777","#4f46e5","#65a30d","#ea580c"];
 
-const store = {
+const realStore = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
+const demoMem = new Map([["lh_favs", SAMPLE.filter(l => l.favorit).map(l => l.url)], ["lh_api",""], ["lh_token",""]]);
+const store = DEMO ? {
+  get(k, d){ if (demoMem.has(k)) return demoMem.get(k); return k === "lh_theme" ? realStore.get(k, d) : d; },
+  set(k, v){ if (k === "lh_theme") realStore.set(k, v); else demoMem.set(k, v); }
+} : realStore;
 
 let links = [];
 let view = "all";                  // all | fav | recent | cat:<nama>
@@ -670,11 +686,12 @@ function render(){
 
   const title = view==="all" ? "Semua link" : view==="fav" ? "Favorit" : view==="recent" ? "Terakhir dibuka" : view.slice(4);
   document.getElementById("title").textContent = title;
-  const sub = isRemote() ? (lastSync ? `Tersinkron dengan Google Sheet · ${timeAgo(lastSync)}` : "Belum tersinkron") : "Tersimpan di perangkat ini";
+  const sub = DEMO ? "Mode demo · data contoh" : isRemote() ? (lastSync ? `Tersinkron dengan Google Sheet · ${timeAgo(lastSync)}` : "Belum tersinkron") : "Tersimpan di perangkat ini";
   document.getElementById("subtitle").textContent = sub;
 
   const b = document.getElementById("banner");
   if (loadError) b.innerHTML = `<div class="banner">Gagal memuat dari Google Sheet: ${esc(loadError)}. Yang tampil adalah data tersimpan terakhir.<button data-open-settings>Cek pengaturan</button></div>`;
+  else if (DEMO) b.innerHTML = `<div class="banner">Mode demo: ini data contoh. Silakan coba tambah, seret, atau ubah warna. Semua perubahan hilang saat halaman dimuat ulang.</div>`;
   else if (!isRemote() && !store.get("lh_hideLocalBanner", false)) b.innerHTML = `<div class="banner">Link yang kamu tambah sekarang tersimpan di perangkat ini saja. Sambungkan ke Google Sheet supaya sama di laptop dan HP.<button data-open-settings>Sambungkan</button></div>`;
   else b.innerHTML = "";
 

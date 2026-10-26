@@ -1,59 +1,84 @@
 # Link Hub
 
-Shortcut card ke link kerjaan. Tambah, edit, dan hapus link langsung dari aplikasi. Kalau disambungkan ke Google Sheet, isinya sama persis di laptop dan HP.
+**Satu halaman untuk semua link kerja, rapi di laptop, dan bisa di-install di HP seperti aplikasi.**
 
-## Isi folder
+🔗 **Coba demo:** `https://dionanantach.github.io/link-hub/?demo` (pakai data contoh; perubahan tidak disimpan)
 
-| File | Fungsi |
+![Tampilan Link Hub di laptop](docs/laptop.png)
+
+> **In English:** Link Hub is a personal, card-based link launcher. It is a static Progressive Web App on GitHub Pages, with Google Sheets + Apps Script as a token-protected backend, so the data stays in my own Google account and syncs across laptop and phone. I designed and directed it, then built it with AI assistance (Claude for design and code, an agent in Antigravity for deployment).
+
+---
+
+## Masalah
+
+Setiap hari saya membuka link yang sama berulang kali: folder Drive, spreadsheet jadwal, desain di Canva, folder foto kegiatan. Bookmark browser cepat berantakan, sulit dicari, dan di HP lebih merepotkan lagi. Saya butuh satu tempat yang:
+
+- bisa dibuka dengan sekali tap, baik di laptop maupun di HP,
+- tersusun per kategori dan bisa saya atur sendiri urutannya,
+- selalu sama isinya di semua perangkat,
+- gratis, tanpa iklan, dan datanya tetap milik saya.
+
+## Fitur
+
+| | |
 |---|---|
-| `index.html` | Aplikasinya (tampilan + logika) |
-| `manifest.json`, `sw.js`, `icons/` | Supaya bisa di-install di HP dan tetap kebuka saat offline |
-| `apps-script/Code.gs` | Backend kecil di Google Sheet untuk menyimpan link (opsional tapi disarankan) |
-| `links-template.csv` | Contoh isi awal Sheet, kalau mau import sekaligus |
+| **Card per kategori** | Ikon otomatis dari situsnya, termasuk ikon khusus Drive, Sheets, Docs, Slides, dan Forms |
+| **Atur urutan dengan seret** | Kategori dan card bisa disusun manual. Di HP: tahan sebentar lalu geser |
+| **Sinkron laptop ↔ HP** | Link, urutan, warna, dan favorit tersimpan di Google Sheet |
+| **Akses cepat** | Pencarian (tekan `/` di laptop), favorit, riwayat "terakhir dibuka", tombol salin link |
+| **Bisa di-install di HP** | Progressive Web App, tetap bisa dibuka saat offline |
+| **Personalisasi** | Warna card manual, tema terang/gelap |
 
-## Dua mode penyimpanan
+![Tampilan Link Hub di HP](docs/hp.png)
 
-- **Tersimpan di perangkat ini** (default, tanpa setup). Link yang kamu tambah hanya ada di browser itu. Cocok untuk coba-coba.
-- **Tersinkron dengan Google Sheet.** Link disimpan di Sheet, jadi laptop dan HP sama. Link yang sudah kamu tambah di mode lokal akan ditawarkan untuk dipindahkan ke Sheet saat pertama kali menyambung.
+## Arsitektur
 
-## 1. Online-kan lewat GitHub Pages
+```mermaid
+flowchart LR
+    A["Browser / HP<br/>(index.html, PWA)"] -- "GET daftar link<br/>POST tambah/edit/urutan + token" --> B["Google Apps Script<br/>(Web App)"]
+    B -- "baca / tulis" --> C[("Google Sheet<br/>milik sendiri")]
+    D["GitHub Pages"] -- "menyajikan file statis" --> A
+```
 
-1. Buat repo baru di GitHub, misalnya `link-hub` (Public).
-2. Upload semua isi folder ini (Add file → Upload files), termasuk folder `icons`. Folder `apps-script` boleh ikut diupload, isinya tidak dipakai oleh halaman.
-3. Settings → Pages → Source: **Deploy from a branch** → Branch `main` / `root` → Save.
-4. Tunggu 1–2 menit, aplikasi bisa dibuka di `https://<username>.github.io/link-hub/`.
+- **Frontend:** satu file HTML/CSS/JavaScript tanpa framework, di-hosting gratis di GitHub Pages. Service worker menyimpan tampilan supaya tetap bisa dibuka saat offline.
+- **Backend:** Google Apps Script yang menempel di Google Sheet. Setiap permintaan wajib membawa token; tanpa token, permintaan ditolak.
+- **Data:** satu baris per link di Sheet, dengan kolom `id, nama, url, kategori, catatan, ikon, warna, favorit, urutan`. Urutan kategori disimpan di Script Properties.
 
-## 2. Sambungkan ke Google Sheet (supaya sinkron)
+## Keputusan desain dan alasannya
 
-1. Buat Google Sheet baru, kasih nama bebas (misalnya "Link Hub").
-2. **Ekstensi → Apps Script**. Hapus isi default, tempel seluruh isi `apps-script/Code.gs`.
-3. Ganti baris `const TOKEN = "ganti-dengan-kode-rahasiamu";` dengan kode rahasia buatanmu sendiri (minimal 12 karakter, misalnya kombinasi kata + angka). Simpan.
-4. **Deploy → Deployment baru** → ikon gear → **Aplikasi web**.
-   - Jalankan sebagai: **Saya**
-   - Yang memiliki akses: **Siapa saja**
-   - Klik Deploy, lalu izinkan akses (kalau muncul peringatan "Google belum memverifikasi aplikasi ini", pilih Lanjutan → Buka). Ini wajar karena script-nya buatanmu sendiri.
-5. Salin **URL aplikasi web** (berakhiran `/exec`).
-6. Buka Link Hub → ikon gear → tempel URL dan token → **Simpan & sambungkan**. Tab bernama `Links` akan dibuat otomatis. (Kalau kamu import `links-template.csv` sendiri, ganti nama tab hasil import-nya jadi `Links`.)
-7. Ulangi langkah 6 di HP (cukup sekali per perangkat).
+- **Google Sheet sebagai database, bukan server sendiri.** Gratis, tidak perlu dirawat, datanya bisa dilihat dan diedit langsung, dan tetap berada di akun Google saya.
+- **Repo publik tanpa rahasia.** Kode boleh dilihat siapa saja, tapi token tidak pernah masuk ke repo. Token hanya ada di Apps Script dan di perangkat saya.
+- **"Tahan lalu geser" untuk mengurutkan di HP.** Kalau card dan chip langsung bisa diseret, setiap kali halaman di-scroll urutannya ikut berantakan. Dengan ditahan dulu, scroll biasa dan mengurutkan bisa hidup berdampingan.
+- **Card hanya bisa dipindah di dalam kategorinya sendiri.** Pindah kategori sengaja lewat menu Edit supaya tidak terjadi tanpa sengaja.
+- **Sinkron saat aplikasi dibuka lagi.** Tidak memakai koneksi real-time yang lebih rumit. Data diperbarui setiap aplikasi kembali dibuka dan setiap satu menit selama terbuka, cukup untuk pemakaian satu orang.
+- **Tampilan datar dan tenang.** Tanpa gradient, garis tipis, atau bayangan pada elemen diam. Ukuran huruf memakai skala golden ratio (φ = 1,618) dari 16px. Font sistem Apple (SF Pro) di perangkat Apple, Inter di perangkat lain, karena SF Pro tidak boleh disebarkan sebagai web font.
+- **Tidak dijual.** Sempat saya pertimbangkan, tapi setelah dibandingkan dengan alternatif gratis yang sudah matang (bookmark browser, Raindrop.io, start.me), proyek ini lebih bernilai sebagai alat pribadi dan portofolio.
 
-Supaya URL tidak perlu ditempel di tiap perangkat, isi `DEFAULT_API_URL` di bagian atas `<script>` dalam `index.html`. **Token jangan ditulis di file itu**, karena repo GitHub-nya publik.
+## Peran AI dan peran saya
 
-> Keamanan: siapa pun yang tahu URL `/exec` **dan** token bisa membaca dan mengubah daftar link. Tanpa token, permintaan ditolak. Jadi jangan bagikan tokennya, dan jangan simpan password di Sheet ini.
+Proyek ini dibangun dengan bantuan AI, dan saya ingin jujur soal pembagian perannya:
 
-### Kalau nanti Code.gs diubah
+- **Saya:** menentukan masalah dan scope, menyusun kebutuhan fitur, mengarahkan desain, menguji di HP dan laptop sungguhan, menemukan masalah (teks card tidak sejajar, header berantakan di jendela kecil, animasi seret patah-patah, ukuran form terlalu besar), dan memutuskan apa yang dibuat dan apa yang tidak.
+- **Claude:** menulis kode frontend dan Apps Script, mengusulkan solusi teknis, dan menguji otomatis dengan browser simulasi (termasuk simulasi sentuhan di HP).
+- **Agent di Antigravity:** menjalankan deploy ke GitHub dan Apps Script berdasarkan instruksi tertulis yang aturannya saya tetapkan, misalnya token tidak boleh masuk repo.
 
-Pakai **Deploy → Kelola deployment → edit (ikon pensil) → Versi: Versi baru → Deploy**. Kalau membuat "Deployment baru" lagi, URL-nya berubah dan harus ditempel ulang di aplikasi.
+Pelajaran terbesarnya: hasil yang baik dari AI datang dari arahan yang jelas, pengujian yang kritis, dan keberanian bilang "ini belum benar".
 
-## 3. Install di HP
+## Yang saya pelajari
 
-- **Android (Chrome):** buka link GitHub Pages → menu ⋮ → **Tambahkan ke layar utama / Install aplikasi**.
-- **iPhone (Safari):** tombol Share → **Add to Home Screen**.
+- Cara kerja Progressive Web App dan service worker
+- Menjaga rahasia (token) tetap aman di proyek dengan repo publik
+- Sinkronisasi data antar perangkat dan menangani backend versi lama tanpa merusak aplikasi
+- Interaksi sentuh: membedakan scroll, tap, dan tahan-geser
+- Tipografi berbasis skala golden ratio dan desain yang responsif di berbagai lebar layar
 
-## Pemakaian harian
+## Batasan
 
-- **Tambah link:** tombol **Tambah** (di HP tombol bulat **+** di kanan bawah). Cukup tempel URL; nama dan ikon terisi otomatis kalau dikosongkan.
-- **Edit/hapus:** ikon pensil di card (di laptop muncul saat kursor di atas card).
-- **Ikon:** otomatis diambil dari favicon situsnya. Kalau ada link yang ikonnya kurang pas, isi kolom "Link gambar ikon" dengan URL gambar (.png/.svg).
-- Bisa juga mengetik langsung di Sheet. Kolom `id` boleh dikosongkan, nanti diisi otomatis.
-- Bintang ★ → Favorit (tampil paling atas). Favorit dan riwayat "Terakhir dibuka" tersimpan per perangkat.
-- Laptop: tekan `/` untuk langsung mencari, `Enter` untuk membuka hasil pertama.
+- Dirancang untuk satu pengguna. Kalau dua perangkat mengubah link yang sama di waktu bersamaan, perubahan terakhir yang menang.
+- Saat setup, Google menampilkan peringatan "aplikasi belum diverifikasi" karena script-nya milik pribadi.
+- Ikon diambil dari layanan favicon pihak ketiga, jadi butuh internet untuk tampil. Saat offline, yang muncul huruf awal.
+
+## Menjalankan sendiri
+
+Langkah lengkapnya ada di [SETUP.md](SETUP.md).

@@ -20,6 +20,9 @@
   --accent:#1d5bd8; --accent-soft:#dce7fb; --on-accent:#ffffff; --star:#d99a00; --danger:#c8323e;
   --card-base:#ffffff; --card-mix:22%; --card-hover:32%; --tile-bg:rgba(255,255,255,.72);
   --radius:16px;
+  /* Skala huruf golden ratio (φ = 1.618) dari dasar 16px, plus setengah langkah (√φ ≈ 1.272):
+     12.6 · 16 · 20.4 · 25.9 · 41.9 */
+  --fs-s:0.786rem; --fs-0:1rem; --fs-1:1.272rem; --fs-2:1.618rem; --fs-3:2.618rem;
 }
 :root[data-theme="dark"]{
   --bg:#121418; --panel:#1b1e24; --panel-2:#252932; --float:#1f232a;
@@ -37,40 +40,44 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:var(--fs-0);line-height:1.5;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* Skala huruf: 40 judul · 18 judul bagian · 16 teks · 13 keterangan */
 .app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
 
 /* Sidebar: dibedakan dari konten lewat warna latar, bukan garis */
 .side{background:var(--panel);padding:28px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column}
-.brand{display:flex;align-items:center;gap:10px;padding:0 10px 28px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.brand{display:flex;align-items:center;gap:10px;padding:0 10px 28px;font-weight:700;font-size:var(--fs-1);letter-spacing:-.02em}
 .brand img{width:28px;height:28px;border-radius:8px}
-.nav-label{font-size:13px;font-weight:500;color:var(--muted);padding:20px 12px 6px}
+.nav-label{display:flex;align-items:center;justify-content:space-between;font-size:var(--fs-s);font-weight:500;color:var(--muted);padding:20px 4px 6px 12px}
+
 .nav{display:flex;flex-direction:column;gap:2px}
-.nav button{all:unset;cursor:pointer;display:flex;align-items:center;padding:9px 12px;border-radius:999px;font-size:15px;font-weight:500;color:var(--text);transition:background-color .15s}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;padding:9px 12px;border-radius:999px;font-size:var(--fs-0);font-weight:500;color:var(--text);transition:background-color .15s}
 .nav button:hover{background:var(--panel-2)}
 .nav button.on{background:var(--text);color:var(--bg);font-weight:600}
 .nav .dot{display:none}
-.nav .count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.nav .count{margin-left:auto;font-size:var(--fs-s);color:var(--muted);font-variant-numeric:tabular-nums}
 .nav button.on .count{color:inherit;opacity:.7}
-.side-foot{margin-top:auto;padding:16px 12px 0;font-size:13px;color:var(--muted);line-height:1.5}
-.side-foot button{all:unset;cursor:pointer;color:var(--accent);font-weight:600}
 
 /* Main */
-.main{padding:30px 40px 80px;min-width:0}
-.top{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-.top h1{font-size:40px;line-height:1.05;margin:0;letter-spacing:-.035em;font-weight:700}
-.top .sub{color:var(--muted);font-size:13px;margin-top:6px}
-.search{margin-left:auto;position:relative;width:min(400px,100%)}
+.main{padding:0 40px 80px;min-width:0}
+/* Bar atas: menempel di atas saat di-scroll. Latar ikut warna halaman supaya isi tidak tembus. */
+.head{position:sticky;top:0;z-index:4;background:var(--bg);margin:0 -40px 8px;padding:30px 40px 22px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,400px) auto;align-items:center;gap:12px}
+.top{display:contents}
+.titles{grid-column:1;grid-row:1;min-width:0}
+.finder{grid-column:2;grid-row:1}
+.tools{grid-column:3;grid-row:1;display:flex;gap:10px;align-items:center}
+.top h1{font-size:var(--fs-3);line-height:1.05;margin:0;letter-spacing:-.035em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{color:var(--muted);font-size:var(--fs-s);margin-top:6px}
+.search{position:relative;display:block;width:100%}
 .search input{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:999px;padding:12px 44px;font:inherit;outline:none;transition:background-color .15s}
 .search input:focus{background:var(--float);outline:2px solid var(--accent);outline-offset:0}
 .search input::placeholder{color:var(--muted)}
 .search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}
-.search kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:600 13px/1 inherit;color:var(--muted);background:var(--panel-2);border-radius:999px;padding:5px 9px}
+.search kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:600 var(--fs-s)/1 inherit;color:var(--muted);background:var(--panel-2);border-radius:999px;padding:5px 9px}
 .icon-btn{all:unset;cursor:pointer;width:46px;height:46px;border-radius:999px;display:grid;place-items:center;background:var(--panel);color:var(--text);flex:none;transition:background-color .15s,transform .1s}
 .icon-btn:hover{background:var(--panel-2)}
 .icon-btn:active{transform:scale(.94)}
@@ -78,8 +85,8 @@ a{color:inherit;text-decoration:none}
 .chips{display:none}
 
 .section{margin-bottom:44px}
-.section h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin:0 0 14px;display:flex;align-items:baseline;gap:8px}
-.section h2 .n{color:var(--muted);font-weight:500;font-size:13px;font-variant-numeric:tabular-nums}
+.section h2{font-size:var(--fs-0);font-weight:600;letter-spacing:-.005em;margin:0 0 12px;display:flex;align-items:baseline;gap:8px}
+.section h2 .n{color:var(--muted);font-weight:500;font-size:var(--fs-s);font-variant-numeric:tabular-nums}
 
 /* Card: bidang warna rata per link, tanpa garis & bayangan */
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
@@ -89,23 +96,23 @@ a{color:inherit;text-decoration:none}
   transition:background-color .15s ease,transform .12s ease}
 .card:hover{background:color-mix(in srgb,var(--c) var(--card-hover),var(--card-base))}
 .card:active{transform:scale(.98)}
-.tile{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none;font-weight:700;font-size:18px;overflow:hidden;background:var(--tile-bg);color:color-mix(in srgb,var(--c) 70%,var(--text))}
+.tile{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none;font-weight:700;font-size:var(--fs-1);overflow:hidden;background:var(--tile-bg);color:color-mix(in srgb,var(--c) 70%,var(--text))}
 .tile img{width:28px;height:28px}
 .meta{min-width:0;width:100%;margin-top:auto}
-.meta .name{font-weight:600;font-size:16px;line-height:1.3;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.meta .desc{font-size:13px;color:color-mix(in srgb,var(--text) 68%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.meta .name{font-weight:600;font-size:var(--fs-0);line-height:1.3;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta .desc{font-size:var(--fs-s);color:color-mix(in srgb,var(--text) 68%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 
 .empty{background:var(--panel);border-radius:var(--radius);padding:36px;text-align:center;color:var(--muted)}
-.banner{background:var(--accent-soft);color:var(--text);border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;font-size:15px;line-height:1.5;display:flex;gap:16px;align-items:center}
+.banner{background:var(--accent-soft);color:var(--text);border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;font-size:var(--fs-0);line-height:1.5;display:flex;gap:16px;align-items:center}
 .banner button{all:unset;cursor:pointer;margin-left:auto;font-weight:600;color:var(--accent);white-space:nowrap}
 
 /* Dialog (melayang → boleh berbayangan) */
 dialog{border:none;border-radius:24px;padding:0;background:var(--float);color:var(--text);width:min(520px,calc(100% - 32px));box-shadow:0 24px 64px rgba(0,0,0,.28)}
 dialog::backdrop{background:rgba(10,12,16,.5)}
 .dlg{padding:26px}
-.dlg h3{margin:0 0 8px;font-size:18px;letter-spacing:-.01em}
-.dlg p{margin:0 0 14px;color:var(--text);font-size:15px;line-height:1.55}
-.dlg label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:16px 0 6px}
+.dlg h3{margin:0 0 8px;font-size:var(--fs-1);letter-spacing:-.01em}
+.dlg p{margin:0 0 14px;color:var(--text);font-size:var(--fs-0);line-height:1.55}
+.dlg label{display:block;font-size:var(--fs-s);font-weight:600;color:var(--muted);margin:16px 0 6px}
 .dlg input,.dlg select{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:12px;padding:12px 14px;font:inherit;outline:none}
 .dlg input:focus,.dlg select:focus{outline:2px solid var(--accent);outline-offset:0}
 .dlg input::placeholder{color:var(--muted)}
@@ -116,19 +123,58 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 .btn.primary{background:var(--accent);color:var(--on-accent)}
 .btn.primary:hover{background:color-mix(in srgb,var(--accent) 88%,var(--text))}
 .btn:disabled{opacity:.5;pointer-events:none}
-.status{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px}
+.status{font-size:var(--fs-s);color:var(--muted);margin-top:10px;min-height:20px}
 
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:15px;opacity:0;transition:.2s;pointer-events:none;z-index:9;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:var(--fs-0);opacity:0;transition:.2s;pointer-events:none;z-index:9;box-shadow:0 10px 30px rgba(0,0,0,.2)}
 .toast.show{opacity:1;transform:translateX(-50%)}
 
 /* Tombol aksi di card */
 .card-actions{position:absolute;top:8px;right:8px;display:flex;gap:2px}
-.star,.edit{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:999px;color:color-mix(in srgb,var(--text) 45%,transparent);transition:background-color .15s,color .15s}
-.star:hover,.edit:hover{background:var(--tile-bg);color:var(--text)}
+.star,.more,.copy,.edit,.del{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:999px;color:color-mix(in srgb,var(--text) 45%,transparent);transition:background-color .15s,color .15s}
+.star:hover,.more:hover,.copy:hover,.edit:hover,.del:hover{background:var(--tile-bg);color:var(--text)}
 .star.on{color:var(--star)}
-.edit{opacity:0;transition:opacity .15s,background-color .15s}
-.card:hover .edit,.edit:focus-visible{opacity:1}
-@media (hover:none){.edit{opacity:1}}
+.copy.done{color:var(--accent)}
+.del:hover{color:var(--danger)}
+/* Laptop (mouse): edit & hapus langsung di card, muncul saat kursor di atas card. HP / layar sentuh: menu ⋯ */
+.edit,.del{display:none}
+@media (hover:hover) and (pointer:fine) and (min-width:821px){
+  .edit,.del{display:grid;opacity:0;transition:opacity .15s,background-color .15s,color .15s}
+  .card:hover .edit,.card:hover .del,.edit:focus-visible,.del:focus-visible{opacity:1}
+  .more{display:none}
+}
+@media (min-width:821px) and (max-width:999px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.more{opacity:0;transition:opacity .15s,background-color .15s}
+.card:hover .more,.more:focus-visible,.more[aria-expanded="true"]{opacity:1}
+@media (hover:none){.more{opacity:1}}
+
+/* Menu ⋯ di card (melayang → boleh berbayangan) */
+.menu{position:fixed;z-index:20;min-width:190px;background:var(--float);border-radius:16px;padding:6px;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+.menu[hidden]{display:none}
+.menu button{all:unset;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:10px;font-weight:500}
+.menu button:hover,.menu button:focus-visible{background:var(--panel)}
+.menu button.danger{color:var(--danger)}
+
+/* Seret untuk mengurutkan kategori */
+[data-view^="cat:"]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.nav button[data-view^="cat:"]{cursor:grab}
+.nav button.dragging,.chips button.dragging{background:var(--accent);color:var(--on-accent);cursor:grabbing}
+.nav button.dragging .count{color:inherit}
+.sorting,.sorting *{cursor:grabbing!important}
+.nav-label .drag-hint{font-weight:400}
+.hint-touch{display:none}
+@media (hover:none){.hint-mouse{display:none}.hint-touch{display:inline}}
+.find-row{display:flex;gap:8px;align-items:center}
+.find-row .search{flex:1;min-width:0}
+.drawer-btn,.drawer-close{display:none}
+.scrim{display:none}
+
+/* Pilihan warna card */
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.sw{all:unset;cursor:pointer;width:30px;height:30px;border-radius:999px;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--c) 55%,var(--card-base));transition:transform .1s}
+.sw:active{transform:scale(.92)}
+.sw.auto{background:var(--panel);font-size:var(--fs-s);font-weight:600;width:auto;padding:0 12px}
+.sw[aria-checked="true"]{outline:2px solid var(--text);outline-offset:2px}
 
 .add{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;height:46px;padding:0 20px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:600;flex:none;transition:background-color .15s,transform .1s}
 .add:hover{background:color-mix(in srgb,var(--accent) 88%,var(--text))}
@@ -138,7 +184,7 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 .form-preview{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--radius);margin:6px 0 4px;
   background:color-mix(in srgb,var(--c) var(--card-mix),var(--card-base))}
 .form-preview .pv-name{font-weight:600}
-.form-preview .pv-sub{font-size:13px;color:color-mix(in srgb,var(--text) 68%,transparent)}
+.form-preview .pv-sub{font-size:var(--fs-s);color:color-mix(in srgb,var(--text) 68%,transparent)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
 .btn.danger{color:var(--danger);margin-right:auto}
 .dlg .err{color:var(--danger)}
@@ -146,22 +192,41 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 /* HP */
 @media (max-width:820px){
   .app{grid-template-columns:1fr}
-  .side{display:none}
-  .main{padding:calc(18px + env(safe-area-inset-top)) 16px 110px}
-  .top{flex-wrap:wrap;gap:10px;margin-bottom:16px}
-  .top .titles{flex:1}
-  .top h1{font-size:30px}
-  .search{order:3;width:100%;margin-left:0}
+  /* Ukuran huruf HP: skala golden ratio yang sama, dasar 15px (bukan 16px) */
+  html{font-size:15px}
+  :root{--fs-s:max(12px,.786rem)}
+  .search input,.dlg input,.dlg select{font-size:16px}   /* 16px supaya browser HP tidak auto-zoom saat mengetik */
+  .tile{width:44px;height:44px;border-radius:11px}
+  .tile img{width:26px;height:26px}
+  /* Sidebar jadi drawer yang digeser dari kiri */
+  .side{position:fixed;top:0;left:0;bottom:0;height:100dvh;width:min(300px,84vw);z-index:30;padding:calc(20px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
+    transform:translateX(-104%);transition:transform .24s cubic-bezier(.2,.8,.2,1);overscroll-behavior:contain;touch-action:pan-y}
+  body.drawer-open .side{transform:none;box-shadow:12px 0 40px rgba(0,0,0,.22)}
+  .brand{justify-content:flex-start;padding:0 4px 20px 10px}
+  .drawer-close{display:grid;margin-left:auto;width:40px;height:40px;background:transparent}
+  .drawer-btn{display:grid}
+  .scrim{display:block;position:fixed;inset:0;z-index:29;background:rgba(10,12,16,.45);opacity:0;pointer-events:none;transition:opacity .2s}
+  body.drawer-open .scrim{opacity:1;pointer-events:auto}
+  body.drawer-open{overflow:hidden}
+  .main{padding:0 16px 110px}
+  /* Di HP: judul ikut ter-scroll, kolom cari + chip kategori yang menempel di atas */
+  .head{display:contents}
+  .top{display:flex;align-items:center;gap:10px;padding-top:calc(18px + env(safe-area-inset-top));margin-bottom:10px}
+  .titles{flex:1}
+  .tools{gap:8px}
+  .top h1{font-size:var(--fs-2)}
+  .finder{position:sticky;top:0;z-index:4;background:var(--bg);margin:0 -16px 14px;padding:10px 16px}
   .search kbd{display:none}
-  .chips{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 22px;padding:2px 16px;scrollbar-width:none}
+  .chips{display:flex;gap:6px;overflow-x:auto;margin:10px -16px 0;padding:0 16px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
-  .chips button{all:unset;cursor:pointer;white-space:nowrap;padding:9px 16px;border-radius:999px;background:var(--panel);font-size:15px;font-weight:500}
+  .chips button{all:unset;cursor:pointer;white-space:nowrap;padding:9px 16px;border-radius:999px;background:var(--panel);font-size:var(--fs-0);font-weight:500}
   .chips button.on{background:var(--text);color:var(--bg)}
   .section{margin-bottom:32px}
   .grid{grid-template-columns:1fr 1fr;gap:10px}
   .card{padding:14px;min-height:132px;gap:12px}
-  .card-actions{top:4px;right:4px}
-  .banner{font-size:14px;flex-wrap:wrap;gap:6px}
+  .card-actions{top:4px;right:4px;gap:0}
+  .star,.more,.copy,.edit,.del{width:32px;height:32px}
+  .banner{flex-wrap:wrap;gap:6px}
   .banner button{margin-left:0}
   .two{grid-template-columns:1fr}
   /* tombol + benar-benar melayang di HP → bayangan wajar */
@@ -173,41 +238,50 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 </head>
 <body>
 <div class="app">
-  <aside class="side">
-    <div class="brand"><img src="icons/icon-192.png" alt="">Link Hub</div>
-    <div class="nav" id="navMain"></div>
-    <div class="nav-label">Kategori</div>
-    <div class="nav" id="navCats"></div>
-    <div class="side-foot">
-      <div id="syncInfo"></div>
-      <button data-open-settings>Pengaturan sinkron</button>
+  <aside class="side" id="side" aria-label="Navigasi">
+    <div class="brand"><img src="icons/icon-192.png" alt="">Link Hub
+      <button class="icon-btn drawer-close" id="drawerClose" aria-label="Tutup menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
+    <div class="nav" id="navMain"></div>
+    <div class="nav-label"><span>Kategori</span><span class="drag-hint"><span class="hint-mouse">seret untuk urutkan</span><span class="hint-touch">tahan &amp; geser untuk urutkan</span></span></div>
+    <div class="nav" id="navCats"></div>
   </aside>
 
   <main class="main">
-    <div class="top">
-      <div class="titles">
-        <h1 id="title">Semua link</h1>
-        <div class="sub" id="subtitle"></div>
+    <header class="head">
+      <div class="top">
+        <div class="titles">
+          <h1 id="title">Semua link</h1>
+          <div class="sub" id="subtitle"></div>
+        </div>
+        <div class="tools">
+  <button class="icon-btn" id="refresh" title="Muat ulang" aria-label="Muat ulang">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>
+      </button>
+          <button class="icon-btn" id="themeBtn" aria-label="Ganti tema"></button>
+  <button class="icon-btn" data-open-settings title="Pengaturan" aria-label="Pengaturan">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+  <button class="add" id="addBtn" aria-label="Tambah link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Tambah</span>
+      </button>
+        </div>
       </div>
-      <label class="search">
+      <div class="finder">
+        <div class="find-row">
+        <button class="icon-btn drawer-btn" id="drawerBtn" aria-label="Buka menu kategori" aria-controls="side" aria-expanded="false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        </button>
+  <label class="search">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="q" type="search" placeholder="Cari link…" autocomplete="off">
         <kbd>/</kbd>
       </label>
-      <button class="icon-btn" id="refresh" title="Muat ulang" aria-label="Muat ulang">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>
-      </button>
-      <button class="icon-btn" data-open-settings title="Pengaturan" aria-label="Pengaturan">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-      </button>
-      <button class="add" id="addBtn" aria-label="Tambah link">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        <span>Tambah</span>
-      </button>
-    </div>
-
-    <div class="chips" id="chips"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+    </header>
     <div id="banner"></div>
     <div id="content"></div>
   </main>
@@ -236,6 +310,8 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
         <input id="fCat" type="text" placeholder="Opsional" maxlength="60" autocomplete="off">
       </div>
     </div>
+    <label id="swLabel">Warna card</label>
+    <div class="swatches" id="swatches" role="radiogroup" aria-labelledby="swLabel"></div>
     <label for="fIkon">Link gambar ikon (opsional)</label>
     <input id="fIkon" type="text" inputmode="url" placeholder="Kosongkan = ikon otomatis dari situsnya" autocomplete="off">
     <div class="status" id="linkStatus"></div>
@@ -256,12 +332,6 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
     <input id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
     <label for="apiToken">Token</label>
     <input id="apiToken" type="password" placeholder="Sama dengan TOKEN di Code.gs" autocomplete="off">
-    <label for="theme">Tema</label>
-    <select id="theme">
-      <option value="auto">Ikuti sistem</option>
-      <option value="light">Terang</option>
-      <option value="dark">Gelap</option>
-    </select>
     <div class="status" id="status"></div>
     <div class="row">
       <button class="btn" type="button" id="disconnect">Putuskan</button>
@@ -271,6 +341,13 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
   </form>
 </dialog>
 
+<!-- Menu ⋯ card -->
+<div class="menu" id="cardMenu" role="menu" hidden>
+  <button role="menuitem" data-act="edit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</button>
+  <button role="menuitem" data-act="delete" class="danger"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Hapus</button>
+</div>
+
+<div class="scrim" id="scrim"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -308,6 +385,12 @@ let favs = new Set(store.get("lh_favs", []));
 let recent = store.get("lh_recent", []);
 let lastSync = store.get("lh_lastSync", null);
 let loadError = "";
+let catOrder = store.get("lh_catOrder", []);   // urutan kategori manual
+let isSorting = false, renderPending = false;
+// Backend versi 3 menyimpan favorit di Sheet (tersinkron). Versi lama / mode lokal: favorit per perangkat.
+let favSynced = store.get("lh_favSynced", false);
+const isFav = l => (isRemote() && favSynced) ? !!l.favorit : favs.has(l.url);
+const toSheet = l => ({...l, favorit: l.favorit ? "ya" : ""});
 
 const apiUrl = () => store.get("lh_api", DEFAULT_API_URL) || "";
 const apiToken = () => store.get("lh_token", "") || "";
@@ -325,23 +408,42 @@ function nameFromUrl(u){
 }
 function cleanLink(l){
   return {id:l.id||"", nama:(l.nama||"").trim(), url:normUrl(l.url), kategori:(l.kategori||"").trim() || "Lainnya",
-          catatan:(l.catatan||"").trim(), ikon:(l.ikon||"").trim()};
+          catatan:(l.catatan||"").trim(), ikon:(l.ikon||"").trim(),
+          warna: /^#[0-9a-f]{6}$/i.test((l.warna||"").trim()) ? l.warna.trim().toLowerCase() : "",
+          favorit: l.favorit === true || /^(ya|true|1|yes)$/i.test(String(l.favorit||"").trim())};
 }
 
 /* ---------- Ikon otomatis ----------
-   Urutan: ikon manual → favicon Google → favicon DuckDuckGo → huruf awal.
-   Link Google Workspace (Sheets/Slides/Forms) di docs.google.com diarahkan ke ikon produknya. */
-const GOOGLE_PATHS = {"/spreadsheets":"sheets.google.com", "/presentation":"slides.google.com", "/forms":"forms.google.com", "/document":"docs.google.com"};
-function iconDomain(u){
+   Urutan: ikon manual → ikon produk Google (Drive, Sheets, dst.) → favicon Google → favicon DuckDuckGo → huruf awal.
+   Kalau satu sumber gagal dimuat, otomatis pindah ke sumber berikutnya. */
+const GPRODUCT = n => `https://www.gstatic.com/images/branding/product/2x/${n}_2020q4_48dp.png`;
+function googleProduct(u){
   try{
-    const x = new URL(u), h = x.hostname.replace(/^www\./,"");
-    if (h === "docs.google.com"){ for (const p in GOOGLE_PATHS) if (x.pathname.startsWith(p)) return GOOGLE_PATHS[p]; }
-    return h;
+    const x = new URL(u), h = x.hostname.replace(/^www\./,""), p = x.pathname;
+    if (h === "docs.google.com"){
+      if (p.startsWith("/spreadsheets")) return "sheets";
+      if (p.startsWith("/presentation")) return "slides";
+      if (p.startsWith("/forms")) return "forms";
+      if (p.startsWith("/drawings")) return "drawings";
+      return "docs";
+    }
+    if (h === "forms.gle") return "forms";
+    if ((h === "google.com" || h === "google.co.id") && p.startsWith("/maps")) return "maps";
+    const map = {"drive.google.com":"drive","sheets.google.com":"sheets","slides.google.com":"slides","forms.google.com":"forms",
+      "mail.google.com":"gmail","gmail.com":"gmail","calendar.google.com":"calendar","meet.google.com":"meet","keep.google.com":"keep",
+      "chat.google.com":"chat","sites.google.com":"sites","photos.google.com":"photos","maps.google.com":"maps","maps.app.goo.gl":"maps",
+      "classroom.google.com":"classroom","contacts.google.com":"contacts","tasks.google.com":"tasks"};
+    return map[h] || "";
   }catch(e){ return ""; }
+}
+function iconDomain(u){
+  try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return ""; }
 }
 function iconSources(l){
   const s = [];
   if (l.ikon) s.push(normUrl(l.ikon));
+  const g = googleProduct(l.url);
+  if (g) s.push(GPRODUCT(g));
   const d = iconDomain(l.url);
   if (d){
     s.push(`https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=128`);
@@ -382,7 +484,15 @@ async function api(payload){
   let data;
   try{ data = await res.json(); }catch(e){ throw new Error("Balasan bukan JSON. Cek URL /exec dan akses 'Siapa saja'."); }
   if (!data.ok) throw new Error(data.error || "Gagal");
-  return data.links.map(cleanLink).filter(l => l.nama && l.url);
+  return {links: data.links.map(cleanLink).filter(l => l.nama && l.url),
+          catOrder: Array.isArray(data.catOrder) ? data.catOrder : null,
+          api: +data.api || 1};
+}
+// Terapkan balasan backend. Urutan dari Sheet dipakai kalau ada; backend versi lama tidak mengirimnya.
+function applyRemote(d){
+  setLinks(d.links);
+  favSynced = d.api >= 3; store.set("lh_favSynced", favSynced);
+  if (d.catOrder && d.catOrder.length){ catOrder = d.catOrder; store.set("lh_catOrder", catOrder); }
 }
 function setLinks(list){
   links = list;
@@ -399,7 +509,7 @@ async function load(manual){
   const cached = store.get("lh_cache", null);
   if (cached){ links = cached; render(); }
   try{
-    setLinks(await api());
+    applyRemote(await api());
     render(); if (manual) toast(`${links.length} link dimuat`);
   }catch(err){
     loadError = err.message; if (!cached) links = [];
@@ -415,24 +525,28 @@ async function saveLink(link){
     else { link.id = "l" + Date.now().toString(36); list.push(link); }
     setLinks(list); return;
   }
-  setLinks(await api({action: link.id ? "update" : "add", link}));
+  applyRemote(await api({action: link.id ? "update" : "add", link: toSheet(link)}));
 }
 async function deleteLink(id){
   if (!isRemote()){ setLinks(links.filter(l => l.id !== id)); return; }
-  setLinks(await api({action:"delete", id}));
+  applyRemote(await api({action:"delete", id}));
 }
 
 /* ---------- Helpers tampilan ---------- */
 function categories(){
   const m = new Map();
   links.forEach(l => m.set(l.kategori, (m.get(l.kategori)||0) + 1));
-  return [...m.entries()];
+  // Kategori yang belum diurutkan manual taruh di belakang, sesuai urutan kemunculannya.
+  const rank = c => { const i = catOrder.indexOf(c); return i < 0 ? Infinity : i; };
+  return [...m.entries()].map((e, i) => [e[0], e[1], i])
+    .sort((a, b) => (rank(a[0]) - rank(b[0])) || (a[2] - b[2]))
+    .map(([c, n]) => [c, n]);
 }
 function colorFor(cat){
   const i = categories().findIndex(c => c[0] === cat);
   return PALETTE[Math.max(0,i) % PALETTE.length];
 }
-function hueFor(l){ return HUES[Math.max(0, links.indexOf(l)) % HUES.length]; }
+function hueFor(l){ return (l && l.warna) || HUES[Math.max(0, links.indexOf(l)) % HUES.length]; }
 function matches(l){
   if (!query) return true;
   const hay = (l.nama + " " + l.kategori + " " + l.catatan + " " + domainOf(l.url)).toLowerCase();
@@ -446,17 +560,24 @@ function timeAgo(t){
 }
 
 /* ---------- Render ---------- */
+const COPY_ICON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const CHECK_ICON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>';
+const EDIT_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+const DEL_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>';
 function card(l){
   const c = hueFor(l);
-  const fav = favs.has(l.url);
+  const fav = isFav(l);
   return `<a class="card" style="--c:${c}" href="${esc(l.url)}" target="_blank" rel="noopener" data-url="${esc(l.url)}">
     <span class="tile">${iconHtml(l)}</span>
     <span class="meta"><div class="name">${esc(l.nama)}</div><div class="desc">${esc(l.catatan || domainOf(l.url))}</div></span>
     <span class="card-actions">
-      <button class="edit" data-edit="${esc(l.id)}" aria-label="Edit ${esc(l.nama)}">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      <button class="edit" data-edit="${esc(l.id)}" aria-label="Edit ${esc(l.nama)}" title="Edit">${EDIT_ICON}</button>
+      <button class="del" data-del="${esc(l.id)}" aria-label="Hapus ${esc(l.nama)}" title="Hapus">${DEL_ICON}</button>
+      <button class="more" data-more="${esc(l.id)}" aria-label="Opsi ${esc(l.nama)}" aria-haspopup="menu" aria-expanded="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
       </button>
-      <button class="star ${fav ? "on" : ""}" data-star="${esc(l.url)}" aria-label="${fav ? "Hapus dari favorit" : "Tambah ke favorit"}">
+      <button class="copy" data-copy="${esc(l.url)}" aria-label="Salin link ${esc(l.nama)}" title="Salin link">${COPY_ICON}</button>
+      <button class="star ${fav ? "on" : ""}" data-star="${esc(l.id)}" aria-label="${fav ? "Hapus dari favorit" : "Tambah ke favorit"}">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="${fav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6L3.2 9.4l6.1-.8z"/></svg>
       </button>
     </span>
@@ -468,9 +589,10 @@ function section(title, items, emptyMsg){
 }
 
 function render(){
+  if (isSorting){ renderPending = true; return; }   // jangan gambar ulang saat kategori sedang diseret
   const cats = categories();
   const byUrl = new Map(links.map(l => [l.url, l]));
-  const favList = links.filter(l => favs.has(l.url));
+  const favList = links.filter(isFav);
   const recentList = recent.map(u => byUrl.get(u)).filter(Boolean).slice(0, 8);
 
   const navItems = [["all","Semua link",links.length,"#94a3b8"],["fav","Favorit",favList.length,"#f5b301"],["recent","Terakhir dibuka",recentList.length,"#94a3b8"]];
@@ -487,7 +609,6 @@ function render(){
   document.getElementById("title").textContent = title;
   const sub = isRemote() ? (lastSync ? `Tersinkron dengan Google Sheet · ${timeAgo(lastSync)}` : "Belum tersinkron") : "Tersimpan di perangkat ini";
   document.getElementById("subtitle").textContent = sub;
-  document.getElementById("syncInfo").textContent = sub;
 
   const b = document.getElementById("banner");
   if (loadError) b.innerHTML = `<div class="banner">Gagal memuat dari Google Sheet: ${esc(loadError)}. Yang tampil adalah data tersimpan terakhir.<button data-open-settings>Cek pengaturan</button></div>`;
@@ -524,6 +645,8 @@ function openLinkForm(link){
   F("fKat").value = link ? link.kategori : (view.startsWith("cat:") ? view.slice(4) : "");
   F("fCat").value = link ? link.catatan : "";
   F("fIkon").value = link ? link.ikon : "";
+  formColor = link ? link.warna : "";
+  renderSwatches();
   F("fNama").placeholder = "Otomatis dari URL kalau dikosongkan";
   F("delBtn").style.display = link ? "" : "none";
   F("linkStatus").textContent = ""; F("linkStatus").className = "status";
@@ -531,12 +654,24 @@ function openLinkForm(link){
   linkDlg.showModal();
   if (!link) setTimeout(() => F("fUrl").focus(), 50);
 }
+/* Pilihan warna: "Otomatis" = warna bergiliran sesuai urutan link */
+let formColor = "";
+const HUE_NAMES = ["Biru","Oranye","Hijau","Merah","Kuning","Cyan","Pink","Hijau muda","Teal","Abu-abu"];
+function renderSwatches(){
+  F("swatches").innerHTML = `<button type="button" class="sw auto" role="radio" data-color="" aria-checked="${formColor===""}">Otomatis</button>`
+    + HUES.map((h, i) => `<button type="button" class="sw" role="radio" style="--c:${h}" data-color="${h}" aria-checked="${formColor===h}" aria-label="${HUE_NAMES[i]}" title="${HUE_NAMES[i]}"></button>`).join("");
+}
+F("swatches").addEventListener("click", e => {
+  const b = e.target.closest("[data-color]"); if (!b) return;
+  formColor = b.dataset.color; renderSwatches(); updatePreview();
+});
 let pvTimer;
 function updatePreview(){
   const url = normUrl(F("fUrl").value);
   const nama = F("fNama").value.trim() || nameFromUrl(url) || "Nama link";
   const l = {nama, url, ikon: F("fIkon").value.trim()};
-  const c = editingId ? hueFor(links.find(x => x.id === editingId)) : HUES[links.length % HUES.length];
+  const auto = editingId ? HUES[Math.max(0, links.findIndex(x => x.id === editingId)) % HUES.length] : HUES[links.length % HUES.length];
+  const c = formColor || auto;
   F("pv").style.setProperty("--c", c);
   F("pvName").textContent = nama;
   F("pvSub").textContent = F("fCat").value.trim() || domainOf(url) || "domain.com";
@@ -552,7 +687,8 @@ F("linkForm").addEventListener("submit", async e => {
   const st = F("linkStatus");
   const url = normUrl(F("fUrl").value);
   try{ new URL(url); }catch(_){ st.textContent = "URL-nya belum valid."; st.className = "status err"; return; }
-  const link = {id: editingId, url, nama: F("fNama").value.trim() || nameFromUrl(url), kategori: F("fKat").value, catatan: F("fCat").value, ikon: F("fIkon").value};
+  const link = {id: editingId, url, nama: F("fNama").value.trim() || nameFromUrl(url), kategori: F("fKat").value, catatan: F("fCat").value, ikon: F("fIkon").value, warna: formColor,
+    favorit: editingId ? !!(links.find(x => x.id === editingId) || {}).favorit : false};
   const dup = links.find(l => l.url === url && l.id !== editingId);
   if (dup && !confirm(`Link ini sudah ada sebagai "${dup.nama}". Tetap simpan?`)) return;
   const old = editingId ? links.find(l => l.id === editingId) : null;
@@ -577,11 +713,9 @@ F("addBtn").onclick = () => openLinkForm(null);
 const settings = document.getElementById("settings");
 function openSettings(){
   F("apiUrl").value = apiUrl(); F("apiToken").value = apiToken();
-  F("theme").value = store.get("lh_theme", "auto");
   F("status").textContent = ""; F("status").className = "status";
   settings.showModal();
 }
-F("theme").onchange = e => { store.set("lh_theme", e.target.value); applyTheme(); };
 F("settingsForm").addEventListener("submit", async e => {
   e.preventDefault();
   const url = F("apiUrl").value.trim(), token = F("apiToken").value.trim(), st = F("status");
@@ -593,14 +727,14 @@ F("settingsForm").addEventListener("submit", async e => {
     const remote = await api();
     const local = store.get("lh_local", null);
     // Tawarkan pindahkan link lokal yang belum ada di Sheet.
-    const pending = (local || []).filter(l => !l.id.startsWith("s") && !remote.some(r => r.url === l.url));
-    let list = remote;
+    const pending = (local || []).filter(l => !l.id.startsWith("s") && !remote.links.some(r => r.url === l.url));
+    let res = remote;
     if (pending.length && confirm(`Ada ${pending.length} link yang kamu tambah di perangkat ini. Pindahkan ke Google Sheet?`)){
-      for (const l of pending) list = await api({action:"add", link:{...l, id:""}});
+      for (const l of pending) res = await api({action:"add", link:toSheet({...l, id:"", favorit: favs.has(l.url)})});
       store.set("lh_local", null);
     }
-    setLinks(list); loadError = "";
-    settings.close(); render(); toast(`Tersambung · ${list.length} link`);
+    applyRemote(res); loadError = "";
+    settings.close(); render(); toast(`Tersambung · ${links.length} link`);
   }catch(err){
     store.set("lh_api", prevUrl); store.set("lh_token", prevToken);
     st.textContent = "Gagal: " + err.message; st.className = "status err";
@@ -616,14 +750,26 @@ F("disconnect").onclick = () => {
 document.addEventListener("click", e => {
   const close = e.target.closest("[data-close]");
   if (close){ close.closest("dialog").close(); return; }
+  const more = e.target.closest("[data-more]");
+  if (more){ e.preventDefault(); e.stopPropagation(); toggleMenu(more); return; }
+  const cp = e.target.closest("[data-copy]");
+  if (cp){
+    e.preventDefault(); e.stopPropagation();
+    copyText(cp.dataset.copy).then(ok => {
+      toast(ok ? "Link disalin" : "Gagal menyalin link");
+      if (ok){ cp.innerHTML = CHECK_ICON; cp.classList.add("done"); setTimeout(() => { cp.innerHTML = COPY_ICON; cp.classList.remove("done"); }, 1500); }
+    });
+    return;
+  }
   const ed = e.target.closest("[data-edit]");
-  if (ed){ e.preventDefault(); e.stopPropagation(); openLinkForm(links.find(l => l.id === ed.dataset.edit)); return; }
+  if (ed){ e.preventDefault(); e.stopPropagation(); const l = links.find(x => x.id === ed.dataset.edit); if (l) openLinkForm(l); return; }
+  const del = e.target.closest("[data-del]");
+  if (del){ e.preventDefault(); e.stopPropagation(); const l = links.find(x => x.id === del.dataset.del); if (l) confirmDelete(l); return; }
   const star = e.target.closest("[data-star]");
   if (star){
     e.preventDefault(); e.stopPropagation();
-    const u = star.dataset.star;
-    favs.has(u) ? favs.delete(u) : favs.add(u);
-    store.set("lh_favs", [...favs]); render(); return;
+    const l = links.find(x => x.id === star.dataset.star); if (l) toggleFav(l);
+    return;
   }
   const c = e.target.closest(".card");
   if (c){
@@ -634,8 +780,214 @@ document.addEventListener("click", e => {
     return;
   }
   const v = e.target.closest("[data-view]");
-  if (v){ view = v.dataset.view; query = ""; F("q").value = ""; render(); window.scrollTo({top:0}); return; }
+  if (v){ view = v.dataset.view; query = ""; F("q").value = ""; render(); window.scrollTo({top:0}); closeDrawer(false); return; }
   if (e.target.closest("[data-open-settings]")) openSettings();
+});
+
+/* ---------- Drawer navigasi (HP) ---------- */
+const drawerMQ = matchMedia("(max-width:820px)");
+function openDrawer(){
+  if (!drawerMQ.matches) return;
+  document.body.classList.add("drawer-open"); F("drawerBtn").setAttribute("aria-expanded","true");
+  const on = F("side").querySelector("button.on") || F("side").querySelector(".nav button");
+  if (on) on.focus({preventScroll:true});
+}
+function closeDrawer(returnFocus){
+  if (!document.body.classList.contains("drawer-open")) return;
+  document.body.classList.remove("drawer-open"); F("drawerBtn").setAttribute("aria-expanded","false");
+  if (returnFocus) F("drawerBtn").focus({preventScroll:true});
+}
+F("drawerBtn").onclick = openDrawer;
+F("drawerClose").onclick = () => closeDrawer(true);
+F("scrim").onclick = () => closeDrawer(true);
+drawerMQ.addEventListener?.("change", () => closeDrawer(false));
+// Geser drawer ke kiri untuk menutup (selama tidak sedang mengurutkan kategori).
+(() => {
+  let sx = null, sy = 0;
+  F("side").addEventListener("pointerdown", e => { if (e.pointerType !== "mouse"){ sx = e.clientX; sy = e.clientY; } });
+  F("side").addEventListener("pointermove", e => {
+    if (sx === null || isSorting) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (dx < -60 && Math.abs(dx) > Math.abs(dy) * 1.5){ sx = null; closeDrawer(false); }
+  });
+  const reset = () => { sx = null; };
+  F("side").addEventListener("pointerup", reset); F("side").addEventListener("pointercancel", reset);
+})();
+
+/* ---------- Favorit ---------- */
+async function toggleFav(l){
+  if (!(isRemote() && favSynced)){
+    favs.has(l.url) ? favs.delete(l.url) : favs.add(l.url);
+    store.set("lh_favs", [...favs]); render(); return;
+  }
+  // Langsung tampil, lalu disimpan ke Sheet di belakang. Kalau gagal, dikembalikan.
+  const next = {...l, favorit: !l.favorit};
+  links = links.map(x => x.id === l.id ? next : x); render();
+  try{ applyRemote(await api({action:"update", link: toSheet(next)})); render(); }
+  catch(err){ links = links.map(x => x.id === l.id ? l : x); render(); toast("Gagal menyimpan favorit: " + err.message); }
+}
+// Sekali saja: pindahkan favorit lama (yang dulu tersimpan per perangkat) ke Sheet.
+async function migrateFavs(){
+  if (!(isRemote() && favSynced) || store.get("lh_favMigrated", false) || !favs.size) return;
+  const todo = links.filter(l => favs.has(l.url) && !l.favorit);
+  store.set("lh_favMigrated", true);
+  try{
+    let res = null;
+    for (const l of todo) res = await api({action:"update", link: toSheet({...l, favorit:true})});
+    if (res){ applyRemote(res); render(); }
+  }catch(e){ store.set("lh_favMigrated", false); }
+}
+
+/* ---------- Sinkron otomatis: ambil data terbaru setiap app dibuka lagi ---------- */
+let syncing = false;
+async function syncIfStale(minGapMs){
+  if (!isRemote() || syncing || isSorting || document.visibilityState !== "visible") return;
+  if (document.querySelector("dialog[open]")) return;         // jangan ganggu yang sedang mengisi form
+  if (lastSync && Date.now() - lastSync < minGapMs) return;
+  syncing = true;
+  try{ await load(); await migrateFavs(); } finally{ syncing = false; }
+}
+document.addEventListener("visibilitychange", () => syncIfStale(10000));
+addEventListener("focus", () => syncIfStale(10000));
+addEventListener("pageshow", e => { if (e.persisted) syncIfStale(0); });
+setInterval(() => syncIfStale(60000), 60000);   // selama app terbuka, cek tiap menit
+
+/* ---------- Menu ⋯: edit, hapus ---------- */
+const menu = F("cardMenu");
+let menuFor = null, menuBtn = null;
+function closeMenu(){
+  if (menu.hidden) return;
+  menu.hidden = true; if (menuBtn) menuBtn.setAttribute("aria-expanded","false");
+  menuFor = null; menuBtn = null;
+}
+function openMenuAt(linkId, x, y, btn){
+  menuFor = links.find(l => l.id === linkId); if (!menuFor) return;
+  menuBtn = btn || null; if (btn) btn.setAttribute("aria-expanded","true");
+  menu.hidden = false;
+  const w = menu.offsetWidth, h = menu.offsetHeight;
+  menu.style.left = Math.max(8, Math.min(x, innerWidth - w - 8)) + "px";
+  menu.style.top = (y + h + 8 > innerHeight ? Math.max(8, y - h - 8) : y) + "px";
+  menu.querySelector("button").focus({preventScroll:true});
+}
+function toggleMenu(btn){
+  if (!menu.hidden && menuBtn === btn) return closeMenu();
+  closeMenu();
+  const r = btn.getBoundingClientRect();
+  openMenuAt(btn.dataset.more, r.right - 190, r.bottom + 6, btn);
+}
+async function copyText(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){
+    const ta = document.createElement("textarea"); ta.value = t; ta.setAttribute("readonly",""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select(); let ok = false; try{ ok = document.execCommand("copy"); }catch(_){} ta.remove(); return ok;
+  }
+}
+menu.addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]"); if (!b || !menuFor) return;
+  const l = menuFor; closeMenu();
+  if (b.dataset.act === "edit") openLinkForm(l);
+  if (b.dataset.act === "delete") confirmDelete(l);
+});
+async function confirmDelete(l){
+  if (!confirm(`Hapus "${l.nama}"?`)) return;
+  try{ await deleteLink(l.id); favs.delete(l.url); store.set("lh_favs", [...favs]); render(); toast("Link dihapus"); }
+  catch(err){ toast("Gagal menghapus: " + err.message); }
+}
+document.addEventListener("pointerdown", e => { if (!menu.hidden && !menu.contains(e.target) && !e.target.closest("[data-more]")) closeMenu(); });
+addEventListener("scroll", closeMenu, {passive:true});
+addEventListener("resize", closeMenu);
+// Klik kanan di card (laptop) juga membuka menu yang sama.
+F("content").addEventListener("contextmenu", e => {
+  const c = e.target.closest(".card"); if (!c) return;
+  const l = links.find(x => x.url === c.dataset.url); if (!l) return;
+  e.preventDefault(); closeMenu(); openMenuAt(l.id, e.clientX, e.clientY, c.querySelector("[data-more]"));
+});
+
+/* ---------- Urutan kategori: seret langsung ----------
+   Laptop: klik-tahan lalu geser kategori di sidebar.
+   HP: tahan chip kategori sebentar (± 0,4 detik) sampai berubah warna, lalu geser kiri/kanan.
+   Keyboard: fokus ke kategori di sidebar, lalu Alt + ↑ / ↓. */
+async function saveOrder(order){
+  catOrder = order; store.set("lh_catOrder", order);
+  let msg = "Urutan disimpan";
+  if (isRemote()){
+    try{ applyRemote(await api({action:"setOrder", order})); catOrder = order; store.set("lh_catOrder", order); }
+    catch(err){
+      msg = /tidak dikenal/i.test(err.message) ? "Urutan disimpan di perangkat ini (backend belum diperbarui)"
+                                               : "Urutan disimpan di perangkat ini, gagal sinkron: " + err.message;
+    }
+  }
+  render(); toast(msg);
+}
+let suppressClick = false;
+function makeSortable(container, axis){
+  const SEL = '[data-view^="cat:"]';
+  const items = () => [...container.querySelectorAll(SEL)];
+  let st = null;
+  function begin(){
+    if (!st) return;
+    st.started = true; isSorting = true;
+    st.item.classList.add("dragging"); document.body.classList.add("sorting");
+    try{ st.item.setPointerCapture(st.pid); }catch(_){}
+    if (st.touch && navigator.vibrate) navigator.vibrate(12);
+  }
+  function finish(commit){
+    if (!st) return;
+    clearTimeout(st.timer);
+    const s0 = st; st = null;
+    if (!s0.started) return;
+    s0.item.classList.remove("dragging"); document.body.classList.remove("sorting");
+    isSorting = false;
+    suppressClick = true; setTimeout(() => suppressClick = false, 350);
+    const order = items().map(el => el.dataset.view.slice(4));
+    if (commit && order.join("\u0000") !== s0.before.join("\u0000")) saveOrder(order);
+    else if (renderPending){ renderPending = false; render(); }
+    else render();
+  }
+  container.addEventListener("pointerdown", e => {
+    const item = e.target.closest(SEL);
+    if (!item || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const touch = e.pointerType !== "mouse";
+    st = {item, pid:e.pointerId, x:e.clientX, y:e.clientY, started:false, touch, before: items().map(el => el.dataset.view.slice(4))};
+    if (touch) st.timer = setTimeout(begin, 400);
+  });
+  container.addEventListener("pointermove", e => {
+    if (!st || e.pointerId !== st.pid) return;
+    if (!st.started){
+      const dist = Math.hypot(e.clientX - st.x, e.clientY - st.y);
+      if (st.touch){ if (dist > 10){ clearTimeout(st.timer); st = null; } return; }  // geser biasa = scroll
+      if (dist < 6) return;
+      begin();
+    }
+    e.preventDefault();
+    const pos = axis === "x" ? e.clientX : e.clientY;
+    const others = items().filter(el => el !== st.item);
+    const before = others.find(el => { const r = el.getBoundingClientRect(); return pos < (axis === "x" ? r.left + r.width / 2 : r.top + r.height / 2); });
+    if (before){ if (st.item.nextElementSibling !== before) container.insertBefore(st.item, before); }
+    else if (others.length){ const last = others[others.length - 1]; if (last.nextElementSibling !== st.item) last.after(st.item); }
+    if (axis === "x"){
+      const r = container.getBoundingClientRect();
+      if (e.clientX < r.left + 40) container.scrollLeft -= 12; else if (e.clientX > r.right - 40) container.scrollLeft += 12;
+    }
+  });
+  container.addEventListener("pointerup", e => { if (st && e.pointerId === st.pid) finish(true); });
+  container.addEventListener("pointercancel", e => { if (st && e.pointerId === st.pid) finish(true); });
+  // Selama menyeret di HP, cegah halaman ikut scroll.
+  container.addEventListener("touchmove", e => { if (st && st.started) e.preventDefault(); }, {passive:false});
+  container.addEventListener("contextmenu", e => { if (e.target.closest(SEL)) e.preventDefault(); });
+  // Klik yang muncul setelah seret jangan dianggap pindah halaman.
+  container.addEventListener("click", e => { if (suppressClick){ e.preventDefault(); e.stopPropagation(); } }, true);
+}
+makeSortable(F("navCats"), "y");
+makeSortable(F("chips"), "x");
+F("navCats").addEventListener("keydown", e => {
+  if (!e.altKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+  const b = e.target.closest('[data-view^="cat:"]'); if (!b) return;
+  e.preventDefault();
+  const order = categories().map(c => c[0]), name = b.dataset.view.slice(4), i = order.indexOf(name), j = i + (e.key === "ArrowUp" ? -1 : 1);
+  if (j < 0 || j >= order.length) return;
+  [order[i], order[j]] = [order[j], order[i]];
+  saveOrder(order).then(() => { const nb = F("navCats").querySelector(`[data-view="cat:${CSS.escape(name)}"]`); if (nb) nb.focus(); });
 });
 
 const qEl = F("q");
@@ -645,16 +997,31 @@ qEl.addEventListener("keydown", e => {
   if (e.key === "Escape"){ qEl.value = ""; query = ""; render(); qEl.blur(); }
 });
 document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !menu.hidden){ const b = menuBtn; closeMenu(); if (b) b.focus(); return; }
+  if (e.key === "Escape" && document.body.classList.contains("drawer-open")){ closeDrawer(true); return; }
   if (document.querySelector("dialog[open]")) return;
   if (e.key === "/" && document.activeElement !== qEl){ e.preventDefault(); qEl.focus(); }
 });
 F("refresh").onclick = () => load(true);
 
+/* ---------- Tema: ikon di bar atas. Awalnya ikut sistem; sekali diklik, pilihan disimpan. ---------- */
+const SUN = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+const darkMQ = matchMedia("(prefers-color-scheme: dark)");
+function effectiveTheme(){ const t = store.get("lh_theme", "auto"); return t === "auto" ? (darkMQ.matches ? "dark" : "light") : t; }
 function applyTheme(){
   const t = store.get("lh_theme", "auto");
   if (t === "auto") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", t);
+  const dark = effectiveTheme() === "dark";
+  const btn = F("themeBtn");
+  btn.innerHTML = dark ? SUN : MOON;
+  btn.setAttribute("aria-label", dark ? "Ganti ke tema terang" : "Ganti ke tema gelap");
+  btn.title = btn.getAttribute("aria-label");
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", dark ? "#121418" : "#f4f5f7"));
 }
+F("themeBtn").onclick = () => { store.set("lh_theme", effectiveTheme() === "dark" ? "light" : "dark"); applyTheme(); };
+darkMQ.addEventListener?.("change", applyTheme);
 let toastTimer;
 function toast(msg){
   const t = F("toast"); t.textContent = msg; t.classList.add("show");
@@ -664,19 +1031,25 @@ function toast(msg){
 /* Setup sekali klik: buka index.html#api=<URL>&token=<TOKEN> di perangkat baru.
    Data disimpan ke perangkat, lalu bagian # dihapus dari alamat. */
 let setupFromLink = false;
-(function(){
+function setupFromHash(){
   try{
     const h = new URLSearchParams(location.hash.slice(1));
     if (h.get("api") && h.get("token")){
       store.set("lh_api", h.get("api")); store.set("lh_token", h.get("token"));
       history.replaceState(null, "", location.pathname + location.search);
-      setupFromLink = true;
+      return true;
     }
   }catch(e){}
-})();
+  return false;
+}
+setupFromLink = setupFromHash();
+// Link setup juga berlaku kalau dibuka di tab yang app-nya sudah terbuka.
+addEventListener("hashchange", () => {
+  if (setupFromHash()) load().then(migrateFavs).then(() => { if (!loadError) toast(`Tersambung · ${links.length} link`); });
+});
 
 applyTheme();
-load().then(() => { if (setupFromLink && !loadError) toast(`Tersambung · ${links.length} link`); });
+load().then(migrateFavs).then(() => { if (setupFromLink && !loadError) toast(`Tersambung · ${links.length} link`); });
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 </body>

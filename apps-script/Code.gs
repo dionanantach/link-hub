@@ -9,7 +9,8 @@
 const TOKEN = "ganti-dengan-kode-rahasiamu";
 
 const SHEET_NAME = "Links";
-const HEADERS = ["id", "nama", "url", "kategori", "catatan", "ikon"];
+const HEADERS = ["id", "nama", "url", "kategori", "catatan", "ikon", "warna", "favorit"];
+const API_VERSION = 3; // 3 = mendukung urutan kategori, warna, dan favorit tersinkron
 
 function doGet(e) {
   return handle_((e && e.parameter) || {});
@@ -39,6 +40,7 @@ function handle_(p) {
       if (action === "add") addRow_(sh, p.link || {});
       else if (action === "update") updateRow_(sh, p.link || {});
       else if (action === "delete") deleteRow_(sh, p.id);
+      else if (action === "setOrder") setOrder_(p.order);
       else return out_({ ok: false, error: "Aksi tidak dikenal: " + action });
     } catch (err) {
       return out_({ ok: false, error: err.message });
@@ -46,7 +48,23 @@ function handle_(p) {
       lock.releaseLock();
     }
   }
-  return out_({ ok: true, links: list_(sh) });
+  return out_({ ok: true, api: API_VERSION, links: list_(sh), catOrder: getOrder_() });
+}
+
+/* ---------- Urutan kategori (disimpan di Script Properties, bukan di Sheet) ---------- */
+
+function getOrder_() {
+  try {
+    return JSON.parse(PropertiesService.getScriptProperties().getProperty("catOrder") || "[]");
+  } catch (err) {
+    return [];
+  }
+}
+
+function setOrder_(order) {
+  if (!Array.isArray(order)) throw new Error("Urutan kategori tidak valid");
+  const clean = order.map(function (c) { return String(c).trim().slice(0, 30); }).filter(String).slice(0, 100);
+  PropertiesService.getScriptProperties().setProperty("catOrder", JSON.stringify(clean));
 }
 
 /**

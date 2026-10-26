@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Link Hub</title>
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121418" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Aturan gaya: tanpa gradient, tanpa garis tipis, tanpa bayangan di elemen diam.
+   Permukaan dibedakan lewat selisih warna latar. Bayangan hanya untuk yang melayang (dialog, toast, tombol + di HP). */
+:root{
+  --bg:#f4f5f7; --panel:#e9ebef; --panel-2:#dfe2e8; --float:#ffffff;
+  --text:#14171c; --muted:#5b6270;
+  --accent:#1d5bd8; --accent-soft:#dce7fb; --on-accent:#ffffff; --star:#d99a00; --danger:#c8323e;
+  --card-base:#ffffff; --card-mix:22%; --card-hover:32%; --tile-bg:rgba(255,255,255,.72);
+  --radius:16px;
+}
+:root[data-theme="dark"]{
+  --bg:#121418; --panel:#1b1e24; --panel-2:#252932; --float:#1f232a;
+  --text:#eceef2; --muted:#a2a8b4;
+  --accent:#6b9bff; --accent-soft:#1e2a44; --on-accent:#0b1220; --star:#ffc53d; --danger:#ff6b74;
+  --card-base:#16191e; --card-mix:30%; --card-hover:40%; --tile-bg:rgba(255,255,255,.09);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121418; --panel:#1b1e24; --panel-2:#252932; --float:#1f232a;
+    --text:#eceef2; --muted:#a2a8b4;
+    --accent:#6b9bff; --accent-soft:#1e2a44; --on-accent:#0b1220; --star:#ffc53d; --danger:#ff6b74;
+    --card-base:#16191e; --card-mix:30%; --card-hover:40%; --tile-bg:rgba(255,255,255,.09);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Skala huruf: 40 judul · 18 judul bagian · 16 teks · 13 keterangan */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+
+/* Sidebar: dibedakan dari konten lewat warna latar, bukan garis */
+.side{background:var(--panel);padding:28px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.brand{display:flex;align-items:center;gap:10px;padding:0 10px 28px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.brand img{width:28px;height:28px;border-radius:8px}
+.nav-label{font-size:13px;font-weight:500;color:var(--muted);padding:20px 12px 6px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;padding:9px 12px;border-radius:999px;font-size:15px;font-weight:500;color:var(--text);transition:background-color .15s}
+.nav button:hover{background:var(--panel-2)}
+.nav button.on{background:var(--text);color:var(--bg);font-weight:600}
+.nav .dot{display:none}
+.nav .count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.nav button.on .count{color:inherit;opacity:.7}
+.side-foot{margin-top:auto;padding:16px 12px 0;font-size:13px;color:var(--muted);line-height:1.5}
+.side-foot button{all:unset;cursor:pointer;color:var(--accent);font-weight:600}
+
+/* Main */
+.main{padding:30px 40px 80px;min-width:0}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.top h1{font-size:40px;line-height:1.05;margin:0;letter-spacing:-.035em;font-weight:700}
+.top .sub{color:var(--muted);font-size:13px;margin-top:6px}
+.search{margin-left:auto;position:relative;width:min(400px,100%)}
+.search input{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:999px;padding:12px 44px;font:inherit;outline:none;transition:background-color .15s}
+.search input:focus{background:var(--float);outline:2px solid var(--accent);outline-offset:0}
+.search input::placeholder{color:var(--muted)}
+.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search kbd{position:absolute;right:12px;top:50%;transform:translateY(-50%);font:600 13px/1 inherit;color:var(--muted);background:var(--panel-2);border-radius:999px;padding:5px 9px}
+.icon-btn{all:unset;cursor:pointer;width:46px;height:46px;border-radius:999px;display:grid;place-items:center;background:var(--panel);color:var(--text);flex:none;transition:background-color .15s,transform .1s}
+.icon-btn:hover{background:var(--panel-2)}
+.icon-btn:active{transform:scale(.94)}
+
+.chips{display:none}
+
+.section{margin-bottom:44px}
+.section h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin:0 0 14px;display:flex;align-items:baseline;gap:8px}
+.section h2 .n{color:var(--muted);font-weight:500;font-size:13px;font-variant-numeric:tabular-nums}
+
+/* Card: bidang warna rata per link, tanpa garis & bayangan */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media (max-width:1180px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:18px;min-height:140px;border-radius:var(--radius);
+  background:color-mix(in srgb,var(--c) var(--card-mix),var(--card-base));
+  transition:background-color .15s ease,transform .12s ease}
+.card:hover{background:color-mix(in srgb,var(--c) var(--card-hover),var(--card-base))}
+.card:active{transform:scale(.98)}
+.tile{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none;font-weight:700;font-size:18px;overflow:hidden;background:var(--tile-bg);color:color-mix(in srgb,var(--c) 70%,var(--text))}
+.tile img{width:28px;height:28px}
+.meta{min-width:0;width:100%;margin-top:auto}
+.meta .name{font-weight:600;font-size:16px;line-height:1.3;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta .desc{font-size:13px;color:color-mix(in srgb,var(--text) 68%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+
+.empty{background:var(--panel);border-radius:var(--radius);padding:36px;text-align:center;color:var(--muted)}
+.banner{background:var(--accent-soft);color:var(--text);border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;font-size:15px;line-height:1.5;display:flex;gap:16px;align-items:center}
+.banner button{all:unset;cursor:pointer;margin-left:auto;font-weight:600;color:var(--accent);white-space:nowrap}
+
+/* Dialog (melayang → boleh berbayangan) */
+dialog{border:none;border-radius:24px;padding:0;background:var(--float);color:var(--text);width:min(520px,calc(100% - 32px));box-shadow:0 24px 64px rgba(0,0,0,.28)}
+dialog::backdrop{background:rgba(10,12,16,.5)}
+.dlg{padding:26px}
+.dlg h3{margin:0 0 8px;font-size:18px;letter-spacing:-.01em}
+.dlg p{margin:0 0 14px;color:var(--text);font-size:15px;line-height:1.55}
+.dlg label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:16px 0 6px}
+.dlg input,.dlg select{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:12px;padding:12px 14px;font:inherit;outline:none}
+.dlg input:focus,.dlg select:focus{outline:2px solid var(--accent);outline-offset:0}
+.dlg input::placeholder{color:var(--muted)}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap}
+.btn{all:unset;cursor:pointer;padding:11px 18px;border-radius:999px;font-weight:600;background:var(--panel);transition:background-color .15s,transform .1s}
+.btn:hover{background:var(--panel-2)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:color-mix(in srgb,var(--accent) 88%,var(--text))}
+.btn:disabled{opacity:.5;pointer-events:none}
+.status{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:15px;opacity:0;transition:.2s;pointer-events:none;z-index:9;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* Tombol aksi di card */
+.card-actions{position:absolute;top:8px;right:8px;display:flex;gap:2px}
+.star,.edit{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:999px;color:color-mix(in srgb,var(--text) 45%,transparent);transition:background-color .15s,color .15s}
+.star:hover,.edit:hover{background:var(--tile-bg);color:var(--text)}
+.star.on{color:var(--star)}
+.edit{opacity:0;transition:opacity .15s,background-color .15s}
+.card:hover .edit,.edit:focus-visible{opacity:1}
+@media (hover:none){.edit{opacity:1}}
+
+.add{all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;height:46px;padding:0 20px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-weight:600;flex:none;transition:background-color .15s,transform .1s}
+.add:hover{background:color-mix(in srgb,var(--accent) 88%,var(--text))}
+.add:active{transform:scale(.96)}
+
+/* Form */
+.form-preview{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--radius);margin:6px 0 4px;
+  background:color-mix(in srgb,var(--c) var(--card-mix),var(--card-base))}
+.form-preview .pv-name{font-weight:600}
+.form-preview .pv-sub{font-size:13px;color:color-mix(in srgb,var(--text) 68%,transparent)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.btn.danger{color:var(--danger);margin-right:auto}
+.dlg .err{color:var(--danger)}
+
+/* HP */
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding:calc(18px + env(safe-area-inset-top)) 16px 110px}
+  .top{flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .top .titles{flex:1}
+  .top h1{font-size:30px}
+  .search{order:3;width:100%;margin-left:0}
+  .search kbd{display:none}
+  .chips{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 22px;padding:2px 16px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{all:unset;cursor:pointer;white-space:nowrap;padding:9px 16px;border-radius:999px;background:var(--panel);font-size:15px;font-weight:500}
+  .chips button.on{background:var(--text);color:var(--bg)}
+  .section{margin-bottom:32px}
+  .grid{grid-template-columns:1fr 1fr;gap:10px}
+  .card{padding:14px;min-height:132px;gap:12px}
+  .card-actions{top:4px;right:4px}
+  .banner{font-size:14px;flex-wrap:wrap;gap:6px}
+  .banner button{margin-left:0}
+  .two{grid-template-columns:1fr}
+  /* tombol + benar-benar melayang di HP → bayangan wajar */
+  .add{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:5;width:58px;height:58px;padding:0;justify-content:center;box-shadow:0 10px 28px rgba(0,0,0,.25)}
+  .add span{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><img src="icons/icon-192.png" alt="">Link Hub</div>
+    <div class="nav" id="navMain"></div>
+    <div class="nav-label">Kategori</div>
+    <div class="nav" id="navCats"></div>
+    <div class="side-foot">
+      <div id="syncInfo"></div>
+      <button data-open-settings>Pengaturan sinkron</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div class="titles">
+        <h1 id="title">Semua link</h1>
+        <div class="sub" id="subtitle"></div>
+      </div>
+      <label class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Cari link…" autocomplete="off">
+        <kbd>/</kbd>
+      </label>
+      <button class="icon-btn" id="refresh" title="Muat ulang" aria-label="Muat ulang">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 4v5h-5"/></svg>
+      </button>
+      <button class="icon-btn" data-open-settings title="Pengaturan" aria-label="Pengaturan">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <button class="add" id="addBtn" aria-label="Tambah link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Tambah</span>
+      </button>
+    </div>
+
+    <div class="chips" id="chips"></div>
+    <div id="banner"></div>
+    <div id="content"></div>
+  </main>
+</div>
+
+<!-- Form tambah / edit link -->
+<dialog id="linkDlg">
+  <form class="dlg" id="linkForm">
+    <h3 id="linkDlgTitle">Tambah link</h3>
+    <div class="form-preview" id="pv">
+      <span class="tile" id="pvTile"></span>
+      <div style="min-width:0"><div class="pv-name" id="pvName">Nama link</div><div class="pv-sub" id="pvSub">domain.com</div></div>
+    </div>
+    <label for="fUrl">URL</label>
+    <input id="fUrl" type="text" inputmode="url" placeholder="Tempel link di sini" required autocomplete="off">
+    <label for="fNama">Nama</label>
+    <input id="fNama" type="text" placeholder="Otomatis dari URL kalau dikosongkan" maxlength="60" autocomplete="off">
+    <div class="two">
+      <div>
+        <label for="fKat">Kategori</label>
+        <input id="fKat" type="text" list="katList" placeholder="mis. Desain" maxlength="30" autocomplete="off">
+        <datalist id="katList"></datalist>
+      </div>
+      <div>
+        <label for="fCat">Catatan</label>
+        <input id="fCat" type="text" placeholder="Opsional" maxlength="60" autocomplete="off">
+      </div>
+    </div>
+    <label for="fIkon">Link gambar ikon (opsional)</label>
+    <input id="fIkon" type="text" inputmode="url" placeholder="Kosongkan = ikon otomatis dari situsnya" autocomplete="off">
+    <div class="status" id="linkStatus"></div>
+    <div class="row">
+      <button class="btn danger" type="button" id="delBtn">Hapus</button>
+      <button class="btn" type="button" data-close>Batal</button>
+      <button class="btn primary" type="submit" id="saveLinkBtn">Simpan</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Pengaturan -->
+<dialog id="settings">
+  <form class="dlg" id="settingsForm">
+    <h3>Pengaturan sinkron</h3>
+    <p>Tanpa diisi, link tersimpan di perangkat ini saja. Isi URL Apps Script dan token supaya link tersimpan di Google Sheet dan sama di laptop &amp; HP. Cara bikinnya ada di README.</p>
+    <label for="apiUrl">URL Web App Apps Script</label>
+    <input id="apiUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+    <label for="apiToken">Token</label>
+    <input id="apiToken" type="password" placeholder="Sama dengan TOKEN di Code.gs" autocomplete="off">
+    <label for="theme">Tema</label>
+    <select id="theme">
+      <option value="auto">Ikuti sistem</option>
+      <option value="light">Terang</option>
+      <option value="dark">Gelap</option>
+    </select>
+    <div class="status" id="status"></div>
+    <div class="row">
+      <button class="btn" type="button" id="disconnect">Putuskan</button>
+      <button class="btn" type="button" data-close>Tutup</button>
+      <button class="btn primary" type="submit">Simpan &amp; sambungkan</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== Konfigurasi =====
+   DEFAULT_API_URL boleh diisi URL Web App Apps Script supaya tidak perlu ditempel di tiap perangkat.
+   TOKEN jangan ditulis di sini (repo GitHub-nya publik) — isi lewat Pengaturan di tiap perangkat. */
+const DEFAULT_API_URL = "";
+
+const SAMPLE = [
+  ["Canva","https://www.canva.com","Desain","Desain cepat"],
+  ["Figma","https://www.figma.com","Desain","UI & mockup"],
+  ["Remove.bg","https://www.remove.bg","Desain","Hapus background"],
+  ["Google Drive","https://drive.google.com","Kerja","File kerja"],
+  ["Google Sheets","https://docs.google.com/spreadsheets/","Kerja","Spreadsheet"],
+  ["Gmail","https://mail.google.com","Kerja","Email"],
+  ["Web BPS","https://www.bps.go.id","Data","Data & publikasi"],
+  ["GitHub","https://github.com","Dev","Repo proyek"],
+  ["Apps Script","https://script.google.com","Dev","Script Google"],
+  ["Claude","https://claude.ai","AI","Asisten"],
+].map(([nama,url,kategori,catatan], i) => ({id:"s"+i, nama, url, kategori, catatan, ikon:""}));
+
+// Warna bidang card, dipakai bergiliran mengikuti urutan link (sengaja tanpa ungu/indigo).
+const HUES = ["#3b82f6","#f97316","#10b981","#f43f5e","#eab308","#06b6d4","#ec4899","#84cc16","#14b8a6","#64748b"];
+const PALETTE = ["#2563eb","#e5484d","#16a34a","#d97706","#7c3aed","#0891b2","#db2777","#4f46e5","#65a30d","#ea580c"];
+
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v==null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+let links = [];
+let view = "all";                  // all | fav | recent | cat:<nama>
+let query = "";
+let favs = new Set(store.get("lh_favs", []));
+let recent = store.get("lh_recent", []);
+let lastSync = store.get("lh_lastSync", null);
+let loadError = "";
+
+const apiUrl = () => store.get("lh_api", DEFAULT_API_URL) || "";
+const apiToken = () => store.get("lh_token", "") || "";
+const isRemote = () => !!(apiUrl() && apiToken());
+
+/* ---------- Util ---------- */
+function normUrl(u){ u = (u||"").trim(); if (!u) return ""; return /^[a-z][a-z0-9+.-]*:/i.test(u) ? u : "https://" + u; }
+function domainOf(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return ""; } }
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function nameFromUrl(u){
+  const d = domainOf(normUrl(u)); if (!d) return "";
+  const parts = d.split(".");
+  const main = parts.length > 2 && parts[parts.length-2].length <= 3 ? parts[parts.length-3] : parts[parts.length-2] || parts[0];
+  return main.charAt(0).toUpperCase() + main.slice(1);
+}
+function cleanLink(l){
+  return {id:l.id||"", nama:(l.nama||"").trim(), url:normUrl(l.url), kategori:(l.kategori||"").trim() || "Lainnya",
+          catatan:(l.catatan||"").trim(), ikon:(l.ikon||"").trim()};
+}
+
+/* ---------- Ikon otomatis ----------
+   Urutan: ikon manual → favicon Google → favicon DuckDuckGo → huruf awal.
+   Link Google Workspace (Sheets/Slides/Forms) di docs.google.com diarahkan ke ikon produknya. */
+const GOOGLE_PATHS = {"/spreadsheets":"sheets.google.com", "/presentation":"slides.google.com", "/forms":"forms.google.com", "/document":"docs.google.com"};
+function iconDomain(u){
+  try{
+    const x = new URL(u), h = x.hostname.replace(/^www\./,"");
+    if (h === "docs.google.com"){ for (const p in GOOGLE_PATHS) if (x.pathname.startsWith(p)) return GOOGLE_PATHS[p]; }
+    return h;
+  }catch(e){ return ""; }
+}
+function iconSources(l){
+  const s = [];
+  if (l.ikon) s.push(normUrl(l.ikon));
+  const d = iconDomain(l.url);
+  if (d){
+    s.push(`https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=128`);
+    s.push(`https://icons.duckduckgo.com/ip3/${encodeURIComponent(d)}.ico`);
+  }
+  return s;
+}
+function iconHtml(l){
+  const letter = esc((l.nama || "?").trim().charAt(0).toUpperCase() || "?");
+  const src = iconSources(l);
+  if (!src.length) return `<span>${letter}</span>`;
+  return `<span>${letter}</span><img alt="" style="display:none" data-src="${esc(src.join("|"))}" data-i="0" src="${esc(src[0])}" onload="iconOk(this)" onerror="iconNext(this)">`;
+}
+window.iconOk = img => {
+  const list = img.dataset.src.split("|"), i = +img.dataset.i;
+  // Google mengembalikan ikon bola dunia 16px kalau situsnya tidak punya favicon → coba sumber berikutnya.
+  if (img.naturalWidth <= 16 && img.src.includes("google.com/s2") && i < list.length - 1) return iconNext(img);
+  img.style.display = "";
+  if (img.previousElementSibling) img.previousElementSibling.remove();
+};
+window.iconNext = img => {
+  const list = img.dataset.src.split("|"), i = +img.dataset.i + 1;
+  if (i >= list.length){ img.remove(); return; }
+  img.dataset.i = i; img.src = list[i];
+};
+
+/* ---------- Penyimpanan: lokal atau Apps Script ---------- */
+async function api(payload){
+  let res;
+  if (!payload){
+    res = await fetch(`${apiUrl()}?action=list&token=${encodeURIComponent(apiToken())}`, {cache:"no-store"});
+  } else {
+    // text/plain supaya tidak kena preflight CORS di Apps Script
+    res = await fetch(apiUrl(), {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body: JSON.stringify({token: apiToken(), ...payload})});
+  }
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  let data;
+  try{ data = await res.json(); }catch(e){ throw new Error("Balasan bukan JSON. Cek URL /exec dan akses 'Siapa saja'."); }
+  if (!data.ok) throw new Error(data.error || "Gagal");
+  return data.links.map(cleanLink).filter(l => l.nama && l.url);
+}
+function setLinks(list){
+  links = list;
+  if (isRemote()){ store.set("lh_cache", list); lastSync = Date.now(); store.set("lh_lastSync", lastSync); }
+  else store.set("lh_local", list);
+}
+
+async function load(manual){
+  loadError = "";
+  if (!isRemote()){
+    links = store.get("lh_local", null) || SAMPLE;
+    render(); if (manual) toast("Memakai link di perangkat ini"); return;
+  }
+  const cached = store.get("lh_cache", null);
+  if (cached){ links = cached; render(); }
+  try{
+    setLinks(await api());
+    render(); if (manual) toast(`${links.length} link dimuat`);
+  }catch(err){
+    loadError = err.message; if (!cached) links = [];
+    render(); if (manual) toast("Gagal memuat, pakai data tersimpan");
+  }
+}
+
+async function saveLink(link){
+  link = cleanLink(link);
+  if (!isRemote()){
+    const list = [...links];
+    if (link.id){ const i = list.findIndex(x => x.id === link.id); if (i >= 0) list[i] = link; }
+    else { link.id = "l" + Date.now().toString(36); list.push(link); }
+    setLinks(list); return;
+  }
+  setLinks(await api({action: link.id ? "update" : "add", link}));
+}
+async function deleteLink(id){
+  if (!isRemote()){ setLinks(links.filter(l => l.id !== id)); return; }
+  setLinks(await api({action:"delete", id}));
+}
+
+/* ---------- Helpers tampilan ---------- */
+function categories(){
+  const m = new Map();
+  links.forEach(l => m.set(l.kategori, (m.get(l.kategori)||0) + 1));
+  return [...m.entries()];
+}
+function colorFor(cat){
+  const i = categories().findIndex(c => c[0] === cat);
+  return PALETTE[Math.max(0,i) % PALETTE.length];
+}
+function hueFor(l){ return HUES[Math.max(0, links.indexOf(l)) % HUES.length]; }
+function matches(l){
+  if (!query) return true;
+  const hay = (l.nama + " " + l.kategori + " " + l.catatan + " " + domainOf(l.url)).toLowerCase();
+  return query.toLowerCase().split(/\s+/).every(w => hay.includes(w));
+}
+function timeAgo(t){
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return "baru saja"; if (m < 60) return m + " menit lalu";
+  const h = Math.round(m / 60); if (h < 24) return h + " jam lalu";
+  return Math.round(h / 24) + " hari lalu";
+}
+
+/* ---------- Render ---------- */
+function card(l){
+  const c = hueFor(l);
+  const fav = favs.has(l.url);
+  return `<a class="card" style="--c:${c}" href="${esc(l.url)}" target="_blank" rel="noopener" data-url="${esc(l.url)}">
+    <span class="tile">${iconHtml(l)}</span>
+    <span class="meta"><div class="name">${esc(l.nama)}</div><div class="desc">${esc(l.catatan || domainOf(l.url))}</div></span>
+    <span class="card-actions">
+      <button class="edit" data-edit="${esc(l.id)}" aria-label="Edit ${esc(l.nama)}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      </button>
+      <button class="star ${fav ? "on" : ""}" data-star="${esc(l.url)}" aria-label="${fav ? "Hapus dari favorit" : "Tambah ke favorit"}">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="${fav ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6-5.4-2.9-5.4 2.9 1.1-6L3.2 9.4l6.1-.8z"/></svg>
+      </button>
+    </span>
+  </a>`;
+}
+function section(title, items, emptyMsg){
+  if (!items.length) return emptyMsg ? `<div class="section"><h2>${esc(title)}</h2><div class="empty">${emptyMsg}</div></div>` : "";
+  return `<div class="section"><h2>${esc(title)} <span class="n">${items.length}</span></h2><div class="grid">${items.map(card).join("")}</div></div>`;
+}
+
+function render(){
+  const cats = categories();
+  const byUrl = new Map(links.map(l => [l.url, l]));
+  const favList = links.filter(l => favs.has(l.url));
+  const recentList = recent.map(u => byUrl.get(u)).filter(Boolean).slice(0, 8);
+
+  const navItems = [["all","Semua link",links.length,"#94a3b8"],["fav","Favorit",favList.length,"#f5b301"],["recent","Terakhir dibuka",recentList.length,"#94a3b8"]];
+  document.getElementById("navMain").innerHTML = navItems.map(([k,t,n,c]) =>
+    `<button class="${view===k?"on":""}" data-view="${k}">${t}<span class="count">${n}</span></button>`).join("");
+  document.getElementById("navCats").innerHTML = cats.map(([c,n]) =>
+    `<button class="${view==="cat:"+c?"on":""}" data-view="cat:${esc(c)}">${esc(c)}<span class="count">${n}</span></button>`).join("");
+  const chipItems = [["all","Semua"],["fav","Favorit"],["recent","Terakhir"],...cats.map(([c]) => ["cat:"+c, c])];
+  document.getElementById("chips").innerHTML = chipItems.map(([k,t]) =>
+    `<button class="${view===k?"on":""}" data-view="${esc(k)}">${esc(t)}</button>`).join("");
+  document.getElementById("katList").innerHTML = cats.map(([c]) => `<option value="${esc(c)}">`).join("");
+
+  const title = view==="all" ? "Semua link" : view==="fav" ? "Favorit" : view==="recent" ? "Terakhir dibuka" : view.slice(4);
+  document.getElementById("title").textContent = title;
+  const sub = isRemote() ? (lastSync ? `Tersinkron dengan Google Sheet · ${timeAgo(lastSync)}` : "Belum tersinkron") : "Tersimpan di perangkat ini";
+  document.getElementById("subtitle").textContent = sub;
+  document.getElementById("syncInfo").textContent = sub;
+
+  const b = document.getElementById("banner");
+  if (loadError) b.innerHTML = `<div class="banner">Gagal memuat dari Google Sheet: ${esc(loadError)}. Yang tampil adalah data tersimpan terakhir.<button data-open-settings>Cek pengaturan</button></div>`;
+  else if (!isRemote() && !store.get("lh_hideLocalBanner", false)) b.innerHTML = `<div class="banner">Link yang kamu tambah sekarang tersimpan di perangkat ini saja. Sambungkan ke Google Sheet supaya sama di laptop dan HP.<button data-open-settings>Sambungkan</button></div>`;
+  else b.innerHTML = "";
+
+  let html = "";
+  if (query){
+    html = section(`Hasil untuk “${query}”`, links.filter(matches), "Tidak ada link yang cocok.");
+  } else if (view === "all"){
+    if (favList.length) html += section("Favorit", favList);
+    html += cats.map(([c]) => section(c, links.filter(l => l.kategori === c))).join("");
+    if (!links.length) html = `<div class="empty">Belum ada link. Tekan tombol Tambah untuk memasukkan link pertama.</div>`;
+  } else if (view === "fav"){
+    html = section("Favorit", favList, "Belum ada favorit. Tekan ikon bintang di card untuk menyematkan link.");
+  } else if (view === "recent"){
+    html = section("Terakhir dibuka", recentList, "Belum ada link yang dibuka.");
+  } else {
+    html = section(view.slice(4), links.filter(l => l.kategori === view.slice(4)), "Kategori ini kosong.");
+  }
+  document.getElementById("content").innerHTML = html;
+}
+
+/* ---------- Form tambah / edit ---------- */
+const linkDlg = document.getElementById("linkDlg");
+const F = id => document.getElementById(id);
+let editingId = "";
+
+function openLinkForm(link){
+  editingId = link ? link.id : "";
+  F("linkDlgTitle").textContent = link ? "Edit link" : "Tambah link";
+  F("fUrl").value = link ? link.url : "";
+  F("fNama").value = link ? link.nama : "";
+  F("fKat").value = link ? link.kategori : (view.startsWith("cat:") ? view.slice(4) : "");
+  F("fCat").value = link ? link.catatan : "";
+  F("fIkon").value = link ? link.ikon : "";
+  F("fNama").placeholder = "Otomatis dari URL kalau dikosongkan";
+  F("delBtn").style.display = link ? "" : "none";
+  F("linkStatus").textContent = ""; F("linkStatus").className = "status";
+  updatePreview();
+  linkDlg.showModal();
+  if (!link) setTimeout(() => F("fUrl").focus(), 50);
+}
+let pvTimer;
+function updatePreview(){
+  const url = normUrl(F("fUrl").value);
+  const nama = F("fNama").value.trim() || nameFromUrl(url) || "Nama link";
+  const l = {nama, url, ikon: F("fIkon").value.trim()};
+  const c = editingId ? hueFor(links.find(x => x.id === editingId)) : HUES[links.length % HUES.length];
+  F("pv").style.setProperty("--c", c);
+  F("pvName").textContent = nama;
+  F("pvSub").textContent = F("fCat").value.trim() || domainOf(url) || "domain.com";
+  clearTimeout(pvTimer);
+  pvTimer = setTimeout(() => { F("pvTile").innerHTML = iconHtml(l); }, 250);
+}
+["fUrl","fNama","fCat","fIkon"].forEach(id => F(id).addEventListener("input", updatePreview));
+// Nama otomatis ditampilkan sebagai placeholder; dipakai kalau kolom Nama dibiarkan kosong.
+F("fUrl").addEventListener("input", () => { F("fNama").placeholder = nameFromUrl(F("fUrl").value) || "Otomatis dari URL kalau dikosongkan"; });
+
+F("linkForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const st = F("linkStatus");
+  const url = normUrl(F("fUrl").value);
+  try{ new URL(url); }catch(_){ st.textContent = "URL-nya belum valid."; st.className = "status err"; return; }
+  const link = {id: editingId, url, nama: F("fNama").value.trim() || nameFromUrl(url), kategori: F("fKat").value, catatan: F("fCat").value, ikon: F("fIkon").value};
+  const dup = links.find(l => l.url === url && l.id !== editingId);
+  if (dup && !confirm(`Link ini sudah ada sebagai "${dup.nama}". Tetap simpan?`)) return;
+  const old = editingId ? links.find(l => l.id === editingId) : null;
+  st.textContent = isRemote() ? "Menyimpan ke Google Sheet…" : ""; st.className = "status";
+  F("saveLinkBtn").disabled = true;
+  try{
+    await saveLink(link);
+    if (old && old.url !== url && favs.has(old.url)){ favs.delete(old.url); favs.add(url); store.set("lh_favs", [...favs]); }
+    linkDlg.close(); render(); toast(editingId ? "Link diperbarui" : "Link ditambahkan");
+  }catch(err){ st.textContent = "Gagal menyimpan: " + err.message; st.className = "status err"; }
+  finally{ F("saveLinkBtn").disabled = false; }
+});
+F("delBtn").onclick = async () => {
+  const l = links.find(x => x.id === editingId); if (!l) return;
+  if (!confirm(`Hapus "${l.nama}"?`)) return;
+  try{ await deleteLink(l.id); favs.delete(l.url); store.set("lh_favs", [...favs]); linkDlg.close(); render(); toast("Link dihapus"); }
+  catch(err){ F("linkStatus").textContent = "Gagal menghapus: " + err.message; F("linkStatus").className = "status err"; }
+};
+F("addBtn").onclick = () => openLinkForm(null);
+
+/* ---------- Pengaturan ---------- */
+const settings = document.getElementById("settings");
+function openSettings(){
+  F("apiUrl").value = apiUrl(); F("apiToken").value = apiToken();
+  F("theme").value = store.get("lh_theme", "auto");
+  F("status").textContent = ""; F("status").className = "status";
+  settings.showModal();
+}
+F("theme").onchange = e => { store.set("lh_theme", e.target.value); applyTheme(); };
+F("settingsForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const url = F("apiUrl").value.trim(), token = F("apiToken").value.trim(), st = F("status");
+  if (!url || !token){ st.textContent = "URL dan token wajib diisi."; st.className = "status err"; return; }
+  const prevUrl = apiUrl(), prevToken = apiToken();
+  store.set("lh_api", url); store.set("lh_token", token);
+  st.textContent = "Menghubungkan…"; st.className = "status";
+  try{
+    const remote = await api();
+    const local = store.get("lh_local", null);
+    // Tawarkan pindahkan link lokal yang belum ada di Sheet.
+    const pending = (local || []).filter(l => !l.id.startsWith("s") && !remote.some(r => r.url === l.url));
+    let list = remote;
+    if (pending.length && confirm(`Ada ${pending.length} link yang kamu tambah di perangkat ini. Pindahkan ke Google Sheet?`)){
+      for (const l of pending) list = await api({action:"add", link:{...l, id:""}});
+      store.set("lh_local", null);
+    }
+    setLinks(list); loadError = "";
+    settings.close(); render(); toast(`Tersambung · ${list.length} link`);
+  }catch(err){
+    store.set("lh_api", prevUrl); store.set("lh_token", prevToken);
+    st.textContent = "Gagal: " + err.message; st.className = "status err";
+  }
+});
+F("disconnect").onclick = () => {
+  if (!confirm("Putuskan dari Google Sheet di perangkat ini? Link di Sheet tidak terhapus.")) return;
+  store.set("lh_api", ""); store.set("lh_token", ""); store.set("lh_cache", null);
+  settings.close(); load();
+};
+
+/* ---------- Events umum ---------- */
+document.addEventListener("click", e => {
+  const close = e.target.closest("[data-close]");
+  if (close){ close.closest("dialog").close(); return; }
+  const ed = e.target.closest("[data-edit]");
+  if (ed){ e.preventDefault(); e.stopPropagation(); openLinkForm(links.find(l => l.id === ed.dataset.edit)); return; }
+  const star = e.target.closest("[data-star]");
+  if (star){
+    e.preventDefault(); e.stopPropagation();
+    const u = star.dataset.star;
+    favs.has(u) ? favs.delete(u) : favs.add(u);
+    store.set("lh_favs", [...favs]); render(); return;
+  }
+  const c = e.target.closest(".card");
+  if (c){
+    const u = c.dataset.url;
+    recent = [u, ...recent.filter(x => x !== u)].slice(0, 20);
+    store.set("lh_recent", recent);
+    setTimeout(render, 300);
+    return;
+  }
+  const v = e.target.closest("[data-view]");
+  if (v){ view = v.dataset.view; query = ""; F("q").value = ""; render(); window.scrollTo({top:0}); return; }
+  if (e.target.closest("[data-open-settings]")) openSettings();
+});
+
+const qEl = F("q");
+qEl.addEventListener("input", () => { query = qEl.value.trim(); render(); });
+qEl.addEventListener("keydown", e => {
+  if (e.key === "Enter"){ const first = document.querySelector("#content .card"); if (first) first.click(); }
+  if (e.key === "Escape"){ qEl.value = ""; query = ""; render(); qEl.blur(); }
+});
+document.addEventListener("keydown", e => {
+  if (document.querySelector("dialog[open]")) return;
+  if (e.key === "/" && document.activeElement !== qEl){ e.preventDefault(); qEl.focus(); }
+});
+F("refresh").onclick = () => load(true);
+
+function applyTheme(){
+  const t = store.get("lh_theme", "auto");
+  if (t === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", t);
+}
+let toastTimer;
+function toast(msg){
+  const t = F("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+/* Setup sekali klik: buka index.html#api=<URL>&token=<TOKEN> di perangkat baru.
+   Data disimpan ke perangkat, lalu bagian # dihapus dari alamat. */
+let setupFromLink = false;
+(function(){
+  try{
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get("api") && h.get("token")){
+      store.set("lh_api", h.get("api")); store.set("lh_token", h.get("token"));
+      history.replaceState(null, "", location.pathname + location.search);
+      setupFromLink = true;
+    }
+  }catch(e){}
+})();
+
+applyTheme();
+load().then(() => { if (setupFromLink && !loadError) toast(`Tersambung · ${links.length} link`); });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>

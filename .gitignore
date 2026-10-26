@@ -1,0 +1,5 @@
+node_modules/
+.clasp.json
+.clasprc.json
+# Berisi daftar link pribadi → jangan ikut ke repo publik
+PROMPT-ANTIGRAVITY.md

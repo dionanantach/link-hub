@@ -185,6 +185,11 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 .side-settings button:hover{background:var(--panel-2)}
 .scrim{display:none}
 
+/* Seret untuk mengurutkan card */
+.card{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+.card.lifted{z-index:6;box-shadow:0 18px 40px rgba(0,0,0,.2);transition:background-color .15s,box-shadow .2s!important;will-change:transform;cursor:grabbing}
+.card.lifted .card-actions{opacity:.4}
+
 /* Pilihan warna card */
 .swatches{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding:3px;margin:-3px;scrollbar-width:none}
 .swatches::-webkit-scrollbar{display:none}
@@ -436,7 +441,7 @@ let isSorting = false, renderPending = false;
 // Backend versi 3 menyimpan favorit di Sheet (tersinkron). Versi lama / mode lokal: favorit per perangkat.
 let favSynced = store.get("lh_favSynced", false);
 const isFav = l => (isRemote() && favSynced) ? !!l.favorit : favs.has(l.url);
-const toSheet = l => ({...l, favorit: l.favorit ? "ya" : ""});
+const toSheet = l => ({...l, favorit: l.favorit ? "ya" : "", urutan: l.urutan == null ? "" : l.urutan});
 
 const apiUrl = () => store.get("lh_api", DEFAULT_API_URL) || "";
 const apiToken = () => store.get("lh_token", "") || "";
@@ -458,7 +463,8 @@ function cleanLink(l){
   return {id:l.id||"", nama:(l.nama||"").trim(), url: /^https?:\/\//i.test(u) ? u : "", kategori:(l.kategori||"").trim() || "Lainnya",
           catatan:(l.catatan||"").trim(), ikon:(l.ikon||"").trim(),
           warna: /^#[0-9a-f]{6}$/i.test((l.warna||"").trim()) ? l.warna.trim().toLowerCase() : "",
-          favorit: l.favorit === true || /^(ya|true|1|yes)$/i.test(String(l.favorit||"").trim())};
+          favorit: l.favorit === true || /^(ya|true|1|yes)$/i.test(String(l.favorit||"").trim()),
+          urutan: (l.urutan !== "" && l.urutan != null && isFinite(+l.urutan)) ? +l.urutan : null};
 }
 
 /* ---------- Ikon otomatis ----------
@@ -615,7 +621,7 @@ const DEL_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" st
 function card(l){
   const c = hueFor(l);
   const fav = isFav(l);
-  return `<a class="card" style="--c:${c}" href="${esc(l.url)}" target="_blank" rel="noopener" data-url="${esc(l.url)}">
+  return `<a class="card" style="--c:${c}" href="${esc(l.url)}" target="_blank" rel="noopener" draggable="false" data-url="${esc(l.url)}" data-id="${esc(l.id)}">
     <span class="tile">${iconHtml(l)}</span>
     <span class="meta"><div class="name">${esc(l.nama)}</div><div class="desc">${esc(l.catatan || domainOf(l.url))}</div></span>
     <span class="card-actions">
@@ -631,16 +637,25 @@ function card(l){
     </span>
   </a>`;
 }
-function section(title, items, emptyMsg){
+function section(title, items, emptyMsg, cat){
   if (!items.length) return emptyMsg ? `<div class="section"><h2>${esc(title)}</h2><div class="empty">${emptyMsg}</div></div>` : "";
-  return `<div class="section"><h2>${esc(title)} <span class="n">${items.length}</span></h2><div class="grid">${items.map(card).join("")}</div></div>`;
+  const sortable = cat != null ? ` data-cat="${esc(cat)}"` : "";
+  return `<div class="section"><h2>${esc(title)} <span class="n">${items.length}</span></h2><div class="grid"${sortable}>${items.map(card).join("")}</div></div>`;
+}
+// Urutan tampil: kolom "urutan" kalau ada; yang belum punya urutan ikut urutan baris di Sheet, ditaruh di belakang.
+function ordered(list){
+  const idx = new Map(links.map((l, i) => [l.id, i]));
+  return [...list].sort((a, b) => {
+    const ua = a.urutan ?? Infinity, ub = b.urutan ?? Infinity;
+    return (ua === ub ? 0 : ua - ub) || (idx.get(a.id) - idx.get(b.id));
+  });
 }
 
 function render(){
   if (isSorting){ renderPending = true; return; }   // jangan gambar ulang saat kategori sedang diseret
   const cats = categories();
   const byUrl = new Map(links.map(l => [l.url, l]));
-  const favList = links.filter(isFav);
+  const favList = ordered(links.filter(isFav));
   const recentList = recent.map(u => byUrl.get(u)).filter(Boolean).slice(0, 8);
 
   const navItems = [["all","Semua link",links.length,"#94a3b8"],["fav","Favorit",favList.length,"#f5b301"],["recent","Terakhir dibuka",recentList.length,"#94a3b8"]];
@@ -665,17 +680,17 @@ function render(){
 
   let html = "";
   if (query){
-    html = section(`Hasil untuk “${query}”`, links.filter(matches), "Tidak ada link yang cocok.");
+    html = section(`Hasil untuk “${query}”`, ordered(links.filter(matches)), "Tidak ada link yang cocok.");
   } else if (view === "all"){
     if (favList.length) html += section("Favorit", favList);
-    html += cats.map(([c]) => section(c, links.filter(l => l.kategori === c))).join("");
+    html += cats.map(([c]) => section(c, ordered(links.filter(l => l.kategori === c)), "", c)).join("");
     if (!links.length) html = `<div class="empty">Belum ada link. Tekan tombol Tambah untuk memasukkan link pertama.</div>`;
   } else if (view === "fav"){
     html = section("Favorit", favList, "Belum ada favorit. Tekan ikon bintang di card untuk menyematkan link.");
   } else if (view === "recent"){
     html = section("Terakhir dibuka", recentList, "Belum ada link yang dibuka.");
   } else {
-    html = section(view.slice(4), links.filter(l => l.kategori === view.slice(4)), "Kategori ini kosong.");
+    html = section(view.slice(4), ordered(links.filter(l => l.kategori === view.slice(4))), "Kategori ini kosong.", view.slice(4));
   }
   document.getElementById("content").innerHTML = html;
 }
@@ -739,7 +754,8 @@ F("linkForm").addEventListener("submit", async e => {
   try{ const u = new URL(url); okUrl = !/\s/.test(F("fUrl").value.trim()) && /^https?:$/.test(u.protocol) && (u.hostname.includes(".") || u.hostname === "localhost"); }catch(_){}
   if (!okUrl){ st.textContent = "URL-nya belum valid. Contoh: drive.google.com/…"; st.className = "status err"; F("fUrl").focus(); return; }
   const link = {id: editingId, url, nama: F("fNama").value.trim() || nameFromUrl(url), kategori: F("fKat").value, catatan: F("fCat").value, ikon: F("fIkon").value, warna: formColor,
-    favorit: editingId ? !!(links.find(x => x.id === editingId) || {}).favorit : false};
+    favorit: editingId ? !!(links.find(x => x.id === editingId) || {}).favorit : false,
+    urutan: editingId ? ((links.find(x => x.id === editingId) || {}).urutan ?? null) : null};
   const dup = links.find(l => l.url === url && l.id !== editingId);
   if (dup && !confirm(`Link ini sudah ada sebagai "${dup.nama}". Tetap simpan?`)) return;
   const old = editingId ? links.find(l => l.id === editingId) : null;
@@ -948,8 +964,11 @@ document.addEventListener("pointerdown", e => { if (!menu.hidden && !menu.contai
 addEventListener("scroll", closeMenu, {passive:true});
 addEventListener("resize", closeMenu);
 // Klik kanan di card (laptop) juga membuka menu yang sama.
+let lastPointerType = "mouse";
+addEventListener("pointerdown", e => { lastPointerType = e.pointerType; }, true);
 F("content").addEventListener("contextmenu", e => {
   const c = e.target.closest(".card"); if (!c) return;
+  if (lastPointerType !== "mouse"){ e.preventDefault(); return; }   // tahan lama di HP = mengurutkan, bukan menu
   const l = links.find(x => x.url === c.dataset.url); if (!l) return;
   e.preventDefault(); closeMenu(); openMenuAt(l.id, e.clientX, e.clientY, c.querySelector("[data-more]"));
 });
@@ -1076,6 +1095,125 @@ function makeSortable(container, axis){
   container.addEventListener("contextmenu", e => { if (e.target.closest(SEL)) e.preventDefault(); });
   container.addEventListener("click", e => { if (suppressClick){ e.preventDefault(); e.stopPropagation(); } }, true);
 }
+/* ---------- Urutan card: tahan (HP) / klik-tahan (laptop) lalu geser ----------
+   Card hanya berpindah di dalam kategorinya. Card lain bergeser halus mengikuti. */
+async function saveCardOrder(ids){
+  const pos = new Map(ids.map((id, i) => [id, i + 1]));
+  const prev = links.map(l => ({...l}));
+  links = links.map(l => pos.has(l.id) ? {...l, urutan: pos.get(l.id)} : l);
+  if (!isRemote()){ store.set("lh_local", links); render(); toast("Urutan card disimpan"); return; }
+  store.set("lh_cache", links); render();
+  try{ applyRemote(await api({action:"setLinkOrder", ids})); render(); toast("Urutan card disimpan"); }
+  catch(err){
+    if (/tidak dikenal/i.test(err.message)) toast("Urutan card hanya di perangkat ini (backend belum diperbarui)");
+    else { links = prev; store.set("lh_cache", links); render(); toast("Gagal menyimpan urutan: " + err.message); }
+  }
+}
+(function makeCardSortable(){
+  const root = F("content");
+  let st = null, raf = 0;
+  // posisi layout card (tanpa transform/animasi) → hitungan stabil, tidak bergetar
+  const layout = el => {
+    const g = st.grid.getBoundingClientRect();
+    return {left: g.left + el.offsetLeft - st.grid.offsetLeft, top: g.top + el.offsetTop - st.grid.offsetTop, w: el.offsetWidth, h: el.offsetHeight};
+  };
+  function stickyBottom(){
+    const el = drawerMQ.matches ? document.querySelector(".finder") : document.querySelector(".head");
+    return el ? Math.max(0, el.getBoundingClientRect().bottom) : 0;
+  }
+  function begin(){
+    if (!st) return;
+    const r = st.card.getBoundingClientRect();
+    st.started = true; isSorting = true; closeMenu();
+    st.gx = st.px - r.left; st.gy = st.py - r.top;
+    st.card.classList.add("lifted"); document.body.classList.add("sorting");
+    st.card.style.transition = "transform 0s";
+    try{ st.card.setPointerCapture(st.pid); }catch(_){}
+    if (st.touch && navigator.vibrate) navigator.vibrate(15);
+    raf = requestAnimationFrame(frame);
+  }
+  function frame(){
+    if (!st || !st.started) return;
+    // gulir otomatis saat card dibawa ke tepi atas/bawah layar
+    const top = stickyBottom() + 40, bottom = innerHeight - 70;
+    if (st.py < top) scrollBy(0, -Math.min(18, (top - st.py) / 3 + 2));
+    else if (st.py > bottom) scrollBy(0, Math.min(18, (st.py - bottom) / 3 + 2));
+    const base = layout(st.card);
+    st.sx = st.px - st.gx - base.left; st.sy = st.py - st.gy - base.top;
+    st.card.style.transform = `translate(${st.sx}px,${st.sy}px) scale(1.04)`;
+    reorder(base);
+    raf = requestAnimationFrame(frame);
+  }
+  function reorder(base){
+    const sibs = [...st.grid.children].filter(el => el !== st.card);
+    const cx = st.px - st.gx + base.w / 2, cy = st.py - st.gy + base.h / 2;
+    // hitung posisi sisip mengikuti urutan baca (kiri→kanan, atas→bawah)
+    let index = 0;
+    for (const s of sibs){
+      const r = layout(s);
+      if (cy > r.top + r.h || (cy >= r.top && cx > r.left + r.w / 2)) index++;
+    }
+    const curIndex = [...st.grid.children].indexOf(st.card);
+    if (index === curIndex) return;
+    const before = new Map(sibs.map(el => [el, el.getBoundingClientRect()]));
+    sibs.forEach(el => el.getAnimations().forEach(a => a.cancel()));
+    st.grid.insertBefore(st.card, sibs[index] || null);
+    if (reduceMotion.matches) return;
+    for (const [el, b] of before){
+      const a = el.getBoundingClientRect(), dx = b.left - a.left, dy = b.top - a.top;
+      if (dx || dy) el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:"none"}], {duration:220, easing:"cubic-bezier(.2,.8,.2,1)"});
+    }
+  }
+  function finish(commit){
+    if (!st) return;
+    clearTimeout(st.timer); cancelAnimationFrame(raf); raf = 0;
+    const s0 = st; st = null;
+    if (!s0.started) return;
+    const el = s0.card;
+    suppressClick = true; setTimeout(() => suppressClick = false, 450);
+    const settle = () => {
+      el.classList.remove("lifted"); el.style.transition = ""; el.style.transform = "";
+      document.body.classList.remove("sorting"); isSorting = false;
+      const after = [...s0.grid.children].map(c => c.dataset.id);
+      if (commit && after.join("\u0000") !== s0.before.join("\u0000")){
+        // gabungkan urutan baru kategori ini ke urutan seluruh link
+        const all = ordered(links).map(l => l.id), set = new Set(after);
+        let k = 0; const ids = all.map(id => set.has(id) ? after[k++] : id);
+        saveCardOrder(ids);
+      } else { renderPending = false; render(); }
+    };
+    if (reduceMotion.matches){ settle(); return; }
+    el.style.transition = "transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .2s";
+    el.style.transform = "translate(0px,0px) scale(1)";
+    setTimeout(settle, 230);
+  }
+  root.addEventListener("pointerdown", e => {
+    const card = e.target.closest(".grid[data-cat] > .card");
+    if (!card || st || e.target.closest("button") || (e.pointerType === "mouse" && e.button !== 0)) return;
+    if (card.parentElement.children.length < 2) return;
+    st = {card, grid: card.parentElement, pid: e.pointerId, x0: e.clientX, y0: e.clientY, px: e.clientX, py: e.clientY,
+          touch: e.pointerType !== "mouse", started: false, sx: 0, sy: 0,
+          before: [...card.parentElement.children].map(c => c.dataset.id)};
+    if (st.touch) st.timer = setTimeout(begin, 380);
+  });
+  root.addEventListener("pointermove", e => {
+    if (!st || e.pointerId !== st.pid) return;
+    st.px = e.clientX; st.py = e.clientY;
+    if (!st.started){
+      const dist = Math.hypot(e.clientX - st.x0, e.clientY - st.y0);
+      if (st.touch){ if (dist > 10){ clearTimeout(st.timer); st = null; } return; }   // geser biasa = scroll halaman
+      if (dist < 7) return;
+      begin();
+    }
+    e.preventDefault();
+  });
+  root.addEventListener("pointerup", e => { if (st && e.pointerId === st.pid) finish(true); });
+  root.addEventListener("pointercancel", e => { if (st && e.pointerId === st.pid) finish(true); });
+  root.addEventListener("touchmove", e => { if (st && st.started) e.preventDefault(); }, {passive:false});
+  root.addEventListener("dragstart", e => { if (e.target.closest(".card")) e.preventDefault(); });
+  root.addEventListener("click", e => { if (suppressClick && e.target.closest(".card")){ e.preventDefault(); e.stopPropagation(); } }, true);
+})();
+
 makeSortable(F("navCats"), "y");
 makeSortable(F("chips"), "x");
 F("navCats").addEventListener("keydown", e => {

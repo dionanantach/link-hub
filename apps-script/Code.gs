@@ -9,8 +9,8 @@
 const TOKEN = "ganti-dengan-kode-rahasiamu";
 
 const SHEET_NAME = "Links";
-const HEADERS = ["id", "nama", "url", "kategori", "catatan", "ikon", "warna", "favorit"];
-const API_VERSION = 3; // 3 = mendukung urutan kategori, warna, dan favorit tersinkron
+const HEADERS = ["id", "nama", "url", "kategori", "catatan", "ikon", "warna", "favorit", "urutan"];
+const API_VERSION = 4; // 3 = urutan kategori, warna, favorit · 4 = urutan card
 
 function doGet(e) {
   return handle_((e && e.parameter) || {});
@@ -41,6 +41,7 @@ function handle_(p) {
       else if (action === "update") updateRow_(sh, p.link || {});
       else if (action === "delete") deleteRow_(sh, p.id);
       else if (action === "setOrder") setOrder_(p.order);
+      else if (action === "setLinkOrder") setLinkOrder_(sh, p.ids);
       else return out_({ ok: false, error: "Aksi tidak dikenal: " + action });
     } catch (err) {
       return out_({ ok: false, error: err.message });
@@ -49,6 +50,25 @@ function handle_(p) {
     }
   }
   return out_({ ok: true, api: API_VERSION, links: list_(sh), catOrder: getOrder_() });
+}
+
+/* ---------- Urutan card: kolom "urutan" di Sheet, ditulis sekaligus dalam satu langkah ---------- */
+
+function setLinkOrder_(sh, ids) {
+  if (!Array.isArray(ids)) throw new Error("Urutan card tidak valid");
+  const rank = {};
+  ids.forEach(function (id, i) { rank[String(id)] = i + 1; });
+  const head = headers_(sh);
+  const last = sh.getLastRow();
+  if (last < 2) return;
+  const idCol = head.indexOf("id") + 1, ordCol = head.indexOf("urutan") + 1;
+  const idVals = sh.getRange(2, idCol, last - 1, 1).getValues();
+  const cur = sh.getRange(2, ordCol, last - 1, 1).getValues();
+  const next = idVals.map(function (r, i) {
+    const k = String(r[0]);
+    return [rank.hasOwnProperty(k) ? rank[k] : cur[i][0]];
+  });
+  sh.getRange(2, ordCol, last - 1, 1).setValues(next);
 }
 
 /* ---------- Urutan kategori (disimpan di Script Properties, bukan di Sheet) ---------- */

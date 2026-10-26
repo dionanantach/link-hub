@@ -1,6 +1,6 @@
 // Service worker: simpan tampilan aplikasi supaya tetap bisa dibuka saat offline.
 // Data link sendiri disimpan di localStorage oleh index.html.
-const CACHE = "linkhub-v8";
+const CACHE = "linkhub-v10";
 const SHELL = ["./", "index.html", "manifest.json", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {

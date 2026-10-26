@@ -10,6 +10,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<!-- SF Pro dipakai otomatis di iPhone/iPad/Mac. Di Android/Windows, Inter yang dipakai karena SF Pro tidak boleh disebar sebagai web font. -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* Aturan gaya: tanpa gradient, tanpa garis tipis, tanpa bayangan di elemen diam.
@@ -40,7 +41,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--text);font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:var(--fs-0);line-height:1.5;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Inter",system-ui,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-0);line-height:1.5;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -71,7 +72,18 @@ a{color:inherit;text-decoration:none}
 .finder{grid-column:2;grid-row:1}
 .tools{grid-column:3;grid-row:1;display:flex;gap:10px;align-items:center}
 .top h1{font-size:var(--fs-3);line-height:1.05;margin:0;letter-spacing:-.035em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .sub{color:var(--muted);font-size:var(--fs-s);margin-top:6px}
+.top .sub{color:var(--muted);font-size:var(--fs-s);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Jendela laptop sedang (mis. setengah layar): kolom cari turun ke baris kedua supaya judul & tombol tidak bertabrakan */
+@media (min-width:821px) and (max-width:1179px){
+  .head{grid-template-columns:minmax(0,1fr) auto;row-gap:16px}
+  .finder{grid-column:1 / -1;grid-row:2}
+  .tools{grid-column:2}
+}
+@media (min-width:821px) and (max-width:999px){
+  .top h1{font-size:var(--fs-2)}
+  .add{width:46px;padding:0;justify-content:center}
+  .add span{display:none}
+}
 .search{position:relative;display:block;width:100%}
 .search input{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:999px;padding:12px 44px;font:inherit;outline:none;transition:background-color .15s}
 .search input:focus{background:var(--float);outline:2px solid var(--accent);outline-offset:0}
@@ -91,39 +103,40 @@ a{color:inherit;text-decoration:none}
 /* Card: bidang warna rata per link, tanpa garis & bayangan */
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 @media (max-width:1180px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:18px;min-height:140px;border-radius:var(--radius);
+.card{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:18px;min-height:0;border-radius:var(--radius);
   background:color-mix(in srgb,var(--c) var(--card-mix),var(--card-base));
   transition:background-color .15s ease,transform .12s ease}
 .card:hover{background:color-mix(in srgb,var(--c) var(--card-hover),var(--card-base))}
 .card:active{transform:scale(.98)}
 .tile{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none;font-weight:700;font-size:var(--fs-1);overflow:hidden;background:var(--tile-bg);color:color-mix(in srgb,var(--c) 70%,var(--text))}
 .tile img{width:28px;height:28px}
-.meta{min-width:0;width:100%;margin-top:auto}
+.meta{min-width:0;width:100%;flex:1;display:flex;flex-direction:column}
 .meta .name{font-weight:600;font-size:var(--fs-0);line-height:1.3;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.meta .desc{font-size:var(--fs-s);color:color-mix(in srgb,var(--text) 68%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.meta .desc{font-size:var(--fs-s);color:color-mix(in srgb,var(--text) 68%,transparent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:auto;padding-top:2px}
 
 .empty{background:var(--panel);border-radius:var(--radius);padding:36px;text-align:center;color:var(--muted)}
 .banner{background:var(--accent-soft);color:var(--text);border-radius:var(--radius);padding:14px 18px;margin-bottom:28px;font-size:var(--fs-0);line-height:1.5;display:flex;gap:16px;align-items:center}
 .banner button{all:unset;cursor:pointer;margin-left:auto;font-weight:600;color:var(--accent);white-space:nowrap}
 
 /* Dialog (melayang → boleh berbayangan) */
-dialog{border:none;border-radius:24px;padding:0;background:var(--float);color:var(--text);width:min(520px,calc(100% - 32px));box-shadow:0 24px 64px rgba(0,0,0,.28)}
+dialog{border:none;border-radius:24px;padding:0;background:var(--float);color:var(--text);width:min(460px,calc(100% - 32px));max-height:calc(100dvh - 48px);overflow:auto;box-shadow:0 24px 64px rgba(0,0,0,.28)}
 dialog::backdrop{background:rgba(10,12,16,.5)}
-.dlg{padding:26px}
-.dlg h3{margin:0 0 8px;font-size:var(--fs-1);letter-spacing:-.01em}
+.dlg{padding:22px}
+.dlg h3{margin:0 0 12px;font-size:var(--fs-1);letter-spacing:-.015em}
 .dlg p{margin:0 0 14px;color:var(--text);font-size:var(--fs-0);line-height:1.55}
-.dlg label{display:block;font-size:var(--fs-s);font-weight:600;color:var(--muted);margin:16px 0 6px}
-.dlg input,.dlg select{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:12px;padding:12px 14px;font:inherit;outline:none}
+.dlg label{display:block;font-size:var(--fs-s);font-weight:600;color:var(--muted);margin:12px 0 5px}
+.dlg input,.dlg select{width:100%;border:none;background:var(--panel);color:var(--text);border-radius:11px;padding:10px 13px;font:inherit;outline:none}
 .dlg input:focus,.dlg select:focus{outline:2px solid var(--accent);outline-offset:0}
 .dlg input::placeholder{color:var(--muted)}
-.row{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap}
-.btn{all:unset;cursor:pointer;padding:11px 18px;border-radius:999px;font-weight:600;background:var(--panel);transition:background-color .15s,transform .1s}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.btn{all:unset;cursor:pointer;padding:10px 18px;border-radius:999px;font-weight:600;background:var(--panel);transition:background-color .15s,transform .1s}
 .btn:hover{background:var(--panel-2)}
 .btn:active{transform:scale(.97)}
 .btn.primary{background:var(--accent);color:var(--on-accent)}
 .btn.primary:hover{background:color-mix(in srgb,var(--accent) 88%,var(--text))}
 .btn:disabled{opacity:.5;pointer-events:none}
-.status{font-size:var(--fs-s);color:var(--muted);margin-top:10px;min-height:20px}
+.status{font-size:var(--fs-s);color:var(--muted);margin-top:10px}
+.status:empty{display:none}
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:var(--fs-0);opacity:0;transition:.2s;pointer-events:none;z-index:9;box-shadow:0 10px 30px rgba(0,0,0,.2)}
 .toast.show{opacity:1;transform:translateX(-50%)}
@@ -157,7 +170,8 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 /* Seret untuk mengurutkan kategori */
 [data-view^="cat:"]{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .nav button[data-view^="cat:"]{cursor:grab}
-.nav button.dragging,.chips button.dragging{background:var(--accent);color:var(--on-accent);cursor:grabbing}
+.nav button.dragging,.chips button.dragging{background:var(--accent);color:var(--on-accent);cursor:grabbing;position:relative;z-index:5;
+  box-shadow:0 10px 24px rgba(0,0,0,.18);transition:background-color .15s,box-shadow .15s!important;will-change:transform}
 .nav button.dragging .count{color:inherit}
 .sorting,.sorting *{cursor:grabbing!important}
 .nav-label .drag-hint{font-weight:400}
@@ -166,11 +180,15 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 .find-row{display:flex;gap:8px;align-items:center}
 .find-row .search{flex:1;min-width:0}
 .drawer-btn,.drawer-close{display:none}
+.side-settings{display:none;margin-top:auto;padding-top:16px}
+.side-settings button{all:unset;cursor:pointer;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:999px;font-weight:500}
+.side-settings button:hover{background:var(--panel-2)}
 .scrim{display:none}
 
 /* Pilihan warna card */
-.swatches{display:flex;flex-wrap:wrap;gap:6px}
-.sw{all:unset;cursor:pointer;width:30px;height:30px;border-radius:999px;display:grid;place-items:center;
+.swatches{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;padding:3px;margin:-3px;scrollbar-width:none}
+.swatches::-webkit-scrollbar{display:none}
+.sw{all:unset;cursor:pointer;flex:none;width:26px;height:26px;border-radius:999px;display:grid;place-items:center;
   background:color-mix(in srgb,var(--c) 55%,var(--card-base));transition:transform .1s}
 .sw:active{transform:scale(.92)}
 .sw.auto{background:var(--panel);font-size:var(--fs-s);font-weight:600;width:auto;padding:0 12px}
@@ -181,11 +199,20 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 .add:active{transform:scale(.96)}
 
 /* Form */
-.form-preview{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--radius);margin:6px 0 4px;
+.form-preview{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;margin:0 0 2px;
   background:color-mix(in srgb,var(--c) var(--card-mix),var(--card-base))}
 .form-preview .pv-name{font-weight:600}
 .form-preview .pv-sub{font-size:var(--fs-s);color:color-mix(in srgb,var(--text) 68%,transparent)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.form-preview .tile{width:36px;height:36px;border-radius:10px;font-size:var(--fs-0)}
+.form-preview .tile img{width:22px;height:22px}
+/* Opsi jarang dipakai disembunyikan dulu */
+.more-opts{margin-top:12px}
+.more-opts summary{cursor:pointer;font-size:var(--fs-s);font-weight:600;color:var(--accent);list-style:none;width:max-content;padding:2px 0}
+.more-opts summary::-webkit-details-marker{display:none}
+.more-opts summary::before{content:"+ "}
+.more-opts[open] summary::before{content:"− "}
+.more-opts label:first-of-type{margin-top:8px}
 .btn.danger{color:var(--danger);margin-right:auto}
 .dlg .err{color:var(--danger)}
 
@@ -193,9 +220,11 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
 @media (max-width:820px){
   .app{grid-template-columns:1fr}
   /* Ukuran huruf HP: skala golden ratio yang sama, dasar 15px (bukan 16px) */
-  html{font-size:15px}
-  :root{--fs-s:max(12px,.786rem)}
-  .search input,.dlg input,.dlg select{font-size:16px}   /* 16px supaya browser HP tidak auto-zoom saat mengetik */
+  html{font-size:14px}
+  :root{--fs-s:max(11.5px,.786rem)}
+  .search input,.dlg input,.dlg select{font-size:15px}
+  /* iPhone (Safari) auto-zoom kalau kolom ketik < 16px */
+  @supports (-webkit-touch-callout:none){ .search input,.dlg input,.dlg select{font-size:16px} }
   .tile{width:44px;height:44px;border-radius:11px}
   .tile img{width:26px;height:26px}
   /* Sidebar jadi drawer yang digeser dari kiri */
@@ -205,6 +234,15 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
   .brand{justify-content:flex-start;padding:0 4px 20px 10px}
   .drawer-close{display:grid;margin-left:auto;width:40px;height:40px;background:transparent}
   .drawer-btn{display:grid}
+  .side-settings{display:block}
+  .tools [data-open-settings]{display:none}   /* di HP, Pengaturan pindah ke sidebar */
+  /* Form lebih ringkas di HP */
+  dialog{width:calc(100% - 24px);border-radius:20px}
+  .dlg{padding:18px}
+  .dlg label{margin:10px 0 4px}
+  .dlg input,.dlg select{padding:9px 12px}
+  .row{margin-top:16px}
+  .btn{padding:9px 16px}
   .scrim{display:block;position:fixed;inset:0;z-index:29;background:rgba(10,12,16,.45);opacity:0;pointer-events:none;transition:opacity .2s}
   body.drawer-open .scrim{opacity:1;pointer-events:auto}
   body.drawer-open{overflow:hidden}
@@ -223,12 +261,11 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
   .chips button.on{background:var(--text);color:var(--bg)}
   .section{margin-bottom:32px}
   .grid{grid-template-columns:1fr 1fr;gap:10px}
-  .card{padding:14px;min-height:132px;gap:12px}
+  .card{padding:14px;min-height:0;gap:12px}
   .card-actions{top:4px;right:4px;gap:0}
   .star,.more,.copy,.edit,.del{width:32px;height:32px}
   .banner{flex-wrap:wrap;gap:6px}
   .banner button{margin-left:0}
-  .two{grid-template-columns:1fr}
   /* tombol + benar-benar melayang di HP → bayangan wajar */
   .add{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:5;width:58px;height:58px;padding:0;justify-content:center;box-shadow:0 10px 28px rgba(0,0,0,.25)}
   .add span{display:none}
@@ -245,6 +282,12 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
     <div class="nav" id="navMain"></div>
     <div class="nav-label"><span>Kategori</span><span class="drag-hint"><span class="hint-mouse">seret untuk urutkan</span><span class="hint-touch">tahan &amp; geser untuk urutkan</span></span></div>
     <div class="nav" id="navCats"></div>
+    <div class="side-settings">
+      <button data-open-settings>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Pengaturan
+      </button>
+    </div>
   </aside>
 
   <main class="main">
@@ -298,7 +341,7 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
     <label for="fUrl">URL</label>
     <input id="fUrl" type="text" inputmode="url" placeholder="Tempel link di sini" required autocomplete="off">
     <label for="fNama">Nama</label>
-    <input id="fNama" type="text" placeholder="Otomatis dari URL kalau dikosongkan" maxlength="60" autocomplete="off">
+    <input id="fNama" type="text" placeholder="Otomatis dari URL" maxlength="60" autocomplete="off">
     <div class="two">
       <div>
         <label for="fKat">Kategori</label>
@@ -312,8 +355,11 @@ dialog::backdrop{background:rgba(10,12,16,.5)}
     </div>
     <label id="swLabel">Warna card</label>
     <div class="swatches" id="swatches" role="radiogroup" aria-labelledby="swLabel"></div>
-    <label for="fIkon">Link gambar ikon (opsional)</label>
-    <input id="fIkon" type="text" inputmode="url" placeholder="Kosongkan = ikon otomatis dari situsnya" autocomplete="off">
+    <details class="more-opts" id="moreOpts">
+      <summary>Ikon kustom</summary>
+      <label for="fIkon">Link gambar ikon</label>
+      <input id="fIkon" type="text" inputmode="url" placeholder="Kosongkan = ikon otomatis dari situsnya" autocomplete="off">
+    </details>
     <div class="status" id="linkStatus"></div>
     <div class="row">
       <button class="btn danger" type="button" id="delBtn">Hapus</button>
@@ -407,7 +453,9 @@ function nameFromUrl(u){
   return main.charAt(0).toUpperCase() + main.slice(1);
 }
 function cleanLink(l){
-  return {id:l.id||"", nama:(l.nama||"").trim(), url:normUrl(l.url), kategori:(l.kategori||"").trim() || "Lainnya",
+  const u = normUrl(l.url);
+  // Hanya link http/https yang ditampilkan (mencegah link "javascript:" yang diketik langsung di Sheet)
+  return {id:l.id||"", nama:(l.nama||"").trim(), url: /^https?:\/\//i.test(u) ? u : "", kategori:(l.kategori||"").trim() || "Lainnya",
           catatan:(l.catatan||"").trim(), ikon:(l.ikon||"").trim(),
           warna: /^#[0-9a-f]{6}$/i.test((l.warna||"").trim()) ? l.warna.trim().toLowerCase() : "",
           favorit: l.favorit === true || /^(ya|true|1|yes)$/i.test(String(l.favorit||"").trim())};
@@ -645,9 +693,10 @@ function openLinkForm(link){
   F("fKat").value = link ? link.kategori : (view.startsWith("cat:") ? view.slice(4) : "");
   F("fCat").value = link ? link.catatan : "";
   F("fIkon").value = link ? link.ikon : "";
+  F("moreOpts").open = !!(link && link.ikon);
   formColor = link ? link.warna : "";
   renderSwatches();
-  F("fNama").placeholder = "Otomatis dari URL kalau dikosongkan";
+  F("fNama").placeholder = "Otomatis dari URL";
   F("delBtn").style.display = link ? "" : "none";
   F("linkStatus").textContent = ""; F("linkStatus").className = "status";
   updatePreview();
@@ -680,13 +729,15 @@ function updatePreview(){
 }
 ["fUrl","fNama","fCat","fIkon"].forEach(id => F(id).addEventListener("input", updatePreview));
 // Nama otomatis ditampilkan sebagai placeholder; dipakai kalau kolom Nama dibiarkan kosong.
-F("fUrl").addEventListener("input", () => { F("fNama").placeholder = nameFromUrl(F("fUrl").value) || "Otomatis dari URL kalau dikosongkan"; });
+F("fUrl").addEventListener("input", () => { F("fNama").placeholder = nameFromUrl(F("fUrl").value) || "Otomatis dari URL"; });
 
 F("linkForm").addEventListener("submit", async e => {
   e.preventDefault();
   const st = F("linkStatus");
   const url = normUrl(F("fUrl").value);
-  try{ new URL(url); }catch(_){ st.textContent = "URL-nya belum valid."; st.className = "status err"; return; }
+  let okUrl = false;
+  try{ const u = new URL(url); okUrl = !/\s/.test(F("fUrl").value.trim()) && /^https?:$/.test(u.protocol) && (u.hostname.includes(".") || u.hostname === "localhost"); }catch(_){}
+  if (!okUrl){ st.textContent = "URL-nya belum valid. Contoh: drive.google.com/…"; st.className = "status err"; F("fUrl").focus(); return; }
   const link = {id: editingId, url, nama: F("fNama").value.trim() || nameFromUrl(url), kategori: F("fKat").value, catatan: F("fCat").value, ikon: F("fIkon").value, warna: formColor,
     favorit: editingId ? !!(links.find(x => x.id === editingId) || {}).favorit : false};
   const dup = links.find(l => l.url === url && l.id !== editingId);
@@ -781,7 +832,7 @@ document.addEventListener("click", e => {
   }
   const v = e.target.closest("[data-view]");
   if (v){ view = v.dataset.view; query = ""; F("q").value = ""; render(); window.scrollTo({top:0}); closeDrawer(false); return; }
-  if (e.target.closest("[data-open-settings]")) openSettings();
+  if (e.target.closest("[data-open-settings]")){ closeDrawer(false); openSettings(); }
 });
 
 /* ---------- Drawer navigasi (HP) ---------- */
@@ -920,39 +971,92 @@ async function saveOrder(order){
   render(); toast(msg);
 }
 let suppressClick = false;
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 function makeSortable(container, axis){
   const SEL = '[data-view^="cat:"]';
   const items = () => [...container.querySelectorAll(SEL)];
-  let st = null;
+  const X = axis === "x";
+  let st = null, raf = 0;
+  const posOf = e => X ? e.clientX : e.clientY;
+  // posisi item di layout (tanpa geseran transform yang sedang dipasang)
+  const slot = el => { const r = el.getBoundingClientRect(); return (X ? r.left : r.top) - (el === st?.item ? st.shift : 0); };
+  function paint(){
+    raf = 0; if (!st || !st.started) return;
+    const base = slot(st.item);
+    st.shift = st.pointer - st.grab - base;
+    st.item.style.transform = `translate${X ? "X" : "Y"}(${st.shift}px) scale(1.03)`;
+    reorder();
+  }
+  function reorder(){
+    const others = items().filter(el => el !== st.item);
+    const r = st.item.getBoundingClientRect();
+    const center = X ? r.left + r.width / 2 : r.top + r.height / 2;
+    let target = null;
+    for (const el of others){
+      const o = el.getBoundingClientRect();
+      if (center < (X ? o.left + o.width / 2 : o.top + o.height / 2)){ target = el; break; }
+    }
+    const nextNow = st.item.nextElementSibling;
+    const changed = target ? (nextNow !== target) : (others.length && others[others.length - 1].nextElementSibling !== st.item);
+    if (!changed) return;
+    // FLIP: catat posisi lama, pindahkan, lalu animasikan dari posisi lama ke posisi baru
+    const before = new Map(others.map(el => [el, X ? el.getBoundingClientRect().left : el.getBoundingClientRect().top]));
+    const oldBase = slot(st.item);
+    if (target) container.insertBefore(st.item, target); else others[others.length - 1].after(st.item);
+    const newBase = slot(st.item);
+    st.shift -= (newBase - oldBase);    // item yang diseret tetap di bawah jari, tidak loncat
+    st.item.style.transform = `translate${X ? "X" : "Y"}(${st.shift}px) scale(1.03)`;
+    if (reduceMotion.matches) return;
+    for (const [el, old] of before){
+      const now = X ? el.getBoundingClientRect().left : el.getBoundingClientRect().top;
+      const d = old - now; if (!d) continue;
+      el.getAnimations().forEach(a => a.cancel());
+      el.animate([{transform:`translate${X ? "X" : "Y"}(${d}px)`},{transform:"none"}], {duration:180, easing:"cubic-bezier(.2,.8,.2,1)"});
+    }
+  }
   function begin(){
     if (!st) return;
-    st.started = true; isSorting = true;
+    st.started = true; isSorting = true; st.shift = 0;
+    const r = st.item.getBoundingClientRect();
+    st.grab = st.pointer - (X ? r.left : r.top);
     st.item.classList.add("dragging"); document.body.classList.add("sorting");
+    st.item.style.transition = "transform 0s";
+    st.item.style.transform = `translate${X ? "X" : "Y"}(0px) scale(1.03)`;
     try{ st.item.setPointerCapture(st.pid); }catch(_){}
     if (st.touch && navigator.vibrate) navigator.vibrate(12);
   }
   function finish(commit){
     if (!st) return;
-    clearTimeout(st.timer);
+    clearTimeout(st.timer); cancelAnimationFrame(raf); raf = 0;
     const s0 = st; st = null;
     if (!s0.started) return;
-    s0.item.classList.remove("dragging"); document.body.classList.remove("sorting");
-    isSorting = false;
-    suppressClick = true; setTimeout(() => suppressClick = false, 350);
-    const order = items().map(el => el.dataset.view.slice(4));
-    if (commit && order.join("\u0000") !== s0.before.join("\u0000")) saveOrder(order);
-    else if (renderPending){ renderPending = false; render(); }
-    else render();
+    const el = s0.item;
+    // lepaskan dengan halus ke slotnya
+    const settle = () => {
+      el.classList.remove("dragging"); el.style.transition = ""; el.style.transform = "";
+      document.body.classList.remove("sorting");
+      isSorting = false;
+      const order = items().map(x => x.dataset.view.slice(4));
+      if (commit && order.join("\u0000") !== s0.before.join("\u0000")) saveOrder(order);
+      else { renderPending = false; render(); }
+    };
+    suppressClick = true; setTimeout(() => suppressClick = false, 400);
+    if (reduceMotion.matches || !s0.shift){ settle(); return; }
+    el.style.transition = "transform .18s cubic-bezier(.2,.8,.2,1)";
+    el.style.transform = `translate${X ? "X" : "Y"}(0px) scale(1)`;
+    setTimeout(settle, 190);
   }
   container.addEventListener("pointerdown", e => {
     const item = e.target.closest(SEL);
-    if (!item || (e.pointerType === "mouse" && e.button !== 0)) return;
+    if (!item || st || (e.pointerType === "mouse" && e.button !== 0)) return;
     const touch = e.pointerType !== "mouse";
-    st = {item, pid:e.pointerId, x:e.clientX, y:e.clientY, started:false, touch, before: items().map(el => el.dataset.view.slice(4))};
-    if (touch) st.timer = setTimeout(begin, 400);
+    st = {item, pid:e.pointerId, x:e.clientX, y:e.clientY, pointer:posOf(e), started:false, touch, shift:0,
+          before: items().map(el => el.dataset.view.slice(4))};
+    if (touch) st.timer = setTimeout(begin, 380);
   });
   container.addEventListener("pointermove", e => {
     if (!st || e.pointerId !== st.pid) return;
+    st.pointer = posOf(e);
     if (!st.started){
       const dist = Math.hypot(e.clientX - st.x, e.clientY - st.y);
       if (st.touch){ if (dist > 10){ clearTimeout(st.timer); st = null; } return; }  // geser biasa = scroll
@@ -960,22 +1064,16 @@ function makeSortable(container, axis){
       begin();
     }
     e.preventDefault();
-    const pos = axis === "x" ? e.clientX : e.clientY;
-    const others = items().filter(el => el !== st.item);
-    const before = others.find(el => { const r = el.getBoundingClientRect(); return pos < (axis === "x" ? r.left + r.width / 2 : r.top + r.height / 2); });
-    if (before){ if (st.item.nextElementSibling !== before) container.insertBefore(st.item, before); }
-    else if (others.length){ const last = others[others.length - 1]; if (last.nextElementSibling !== st.item) last.after(st.item); }
-    if (axis === "x"){
+    if (X){
       const r = container.getBoundingClientRect();
-      if (e.clientX < r.left + 40) container.scrollLeft -= 12; else if (e.clientX > r.right - 40) container.scrollLeft += 12;
+      if (e.clientX < r.left + 40) container.scrollLeft -= 10; else if (e.clientX > r.right - 40) container.scrollLeft += 10;
     }
+    if (!raf) raf = requestAnimationFrame(paint);   // maksimal sekali per frame → halus
   });
   container.addEventListener("pointerup", e => { if (st && e.pointerId === st.pid) finish(true); });
   container.addEventListener("pointercancel", e => { if (st && e.pointerId === st.pid) finish(true); });
-  // Selama menyeret di HP, cegah halaman ikut scroll.
   container.addEventListener("touchmove", e => { if (st && st.started) e.preventDefault(); }, {passive:false});
   container.addEventListener("contextmenu", e => { if (e.target.closest(SEL)) e.preventDefault(); });
-  // Klik yang muncul setelah seret jangan dianggap pindah halaman.
   container.addEventListener("click", e => { if (suppressClick){ e.preventDefault(); e.stopPropagation(); } }, true);
 }
 makeSortable(F("navCats"), "y");
